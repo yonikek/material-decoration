@@ -92,6 +92,27 @@ Please install the AUR package
 A pre-built package is present in [chaotic-aur](https://aur.chaotic.cx/).
 
 
+### NixOS
+Install via the Nix flake in this repository:
+
+```sh
+nix build      # produces ./result
+nix profile install .
+```
+
+or add it to your NixOS configuration (with the repository as a flake
+input, `inputs.nixpkgs.follows` recommended to reuse your nixpkgs):
+
+```nix
+environment.systemPackages = [
+  material-decoration.packages.${system}.default
+];
+```
+
+The flake also provides `material-decoration.packages.${system}.tests`
+(the CTest suite) and `devShells.default` for building from source.
+
+
 ## Build instructions for Plasma 6
 Requires a C++20 compiler, CMake, extra-cmake-modules, Qt 6, KDE Frameworks 6
 and KDecoration3.
