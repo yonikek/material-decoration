@@ -96,7 +96,7 @@ void forEachButton(KDecoration3::DecorationButtonGroup *buttonGroup, Func f)
 
 static std::atomic<int> s_decoCount(0);
 
-// Shadows are shared between decorations: [preview][active]
+// Shadows are shared between decorations: [hasBorder][active]
 static std::shared_ptr<KDecoration3::DecorationShadow> s_cachedShadows[2][2];
 
 Decoration::Decoration(QObject *parent, const QVariantList &args)
@@ -809,69 +809,23 @@ void Decoration::updateShadow()
     }
 
     const bool active = window()->isActive();
-    const bool preview = property("visualParent").isValid();
-    auto &cached = s_cachedShadows[preview ? 1 : 0][active ? 1 : 0];
+    const bool hasBorder = isShadowOnly() || !hasNoBorders() || window()->isShaded();
+    auto &cached = s_cachedShadows[hasBorder ? 1 : 0][active ? 1 : 0];
     if (!cached) {
-        cached = createShadowObject(active);
+        const QImage shadowImage = OxygenHelper::self()->shadowImage(active, hasBorder);
+        if (shadowImage.isNull()) {
+            setShadow(nullptr);
+            return;
+        }
+
+        const int shadowSize = shadowImage.width() / 2;
+        const int overlap = 4;
+        cached = std::make_shared<KDecoration3::DecorationShadow>();
+        cached->setPadding(QMargins(shadowSize - overlap, shadowSize - overlap, shadowSize - overlap, shadowSize - overlap));
+        cached->setInnerShadowRect(QRect(shadowSize, shadowSize, 1, 1));
+        cached->setShadow(shadowImage);
     }
     setShadow(cached);
-}
-
-std::shared_ptr<KDecoration3::DecorationShadow> Decoration::createShadowObject(bool active)
-{
-    // Oxygen shadows: a wide soft one, plus a tight dark one close to the
-    // window edge. Active windows get a stronger shadow.
-    const QPoint offset = active ? QPoint(0, 6) : QPoint(0, 4);
-    const int radius1 = active ? 36 : 28;
-    const qreal opacity1 = active ? 0.50 : 0.30;
-    const int radius2 = active ? 10 : 8;
-    const qreal opacity2 = active ? 0.40 : 0.25;
-
-    const QSize boxSize = BoxShadowRenderer::calculateMinimumBoxSize(radius1).expandedTo(BoxShadowRenderer::calculateMinimumBoxSize(radius2));
-
-    BoxShadowRenderer shadowRenderer;
-    shadowRenderer.setBorderRadius(Metrics::CornerRadius + 0.5);
-    shadowRenderer.setBoxSize(boxSize);
-    shadowRenderer.addShadow(QPoint(0, 0), radius1, QColor(0, 0, 0, qRound(255 * opacity1)));
-    shadowRenderer.addShadow(QPoint(0, 0), radius2, QColor(0, 0, 0, qRound(255 * opacity2)));
-
-    QImage shadowTexture = shadowRenderer.render();
-
-    QPainter painter(&shadowTexture);
-    painter.setRenderHint(QPainter::Antialiasing);
-
-    const QRectF outerRect = shadowTexture.rect();
-
-    QRectF boxRect(QPoint(0, 0), boxSize);
-    boxRect.moveCenter(outerRect.center());
-
-    // Mask out inner rect.
-    const QMarginsF padding = QMarginsF(boxRect.left() - outerRect.left() - offset.x(),
-                                        boxRect.top() - outerRect.top() - offset.y(),
-                                        outerRect.right() - boxRect.right() + offset.x(),
-                                        outerRect.bottom() - boxRect.bottom() + offset.y());
-    QRectF innerRect = outerRect - padding;
-    if (property("visualParent").isValid()) {
-        // Like Breeze, keep shadow pixels under the frame to avoid visible
-        // seams where the preview stitches the shadow tiles together.
-        innerRect.adjust(2, 2, -2, -2);
-    }
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(Qt::black);
-    painter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
-    painter.drawRoundedRect(innerRect, Metrics::CornerRadius + 0.5, Metrics::CornerRadius + 0.5);
-
-    painter.end();
-
-    auto ret = std::make_shared<KDecoration3::DecorationShadow>();
-    ret->setPadding(padding);
-    // The preview copies shadow tiles with QPainter; keep their source edges
-    // on whole texels rather than splitting the central pixel in half.
-    const QPointF shadowCenter = property("visualParent").isValid()
-        ? QPointF(shadowTexture.rect().center()) : outerRect.center();
-    ret->setInnerShadowRect(QRectF(shadowCenter, QSizeF(1, 1)));
-    ret->setShadow(shadowTexture);
-    return ret;
 }
 
 bool Decoration::menuAlwaysShow() const

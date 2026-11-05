@@ -147,7 +147,6 @@ private:
     void setButtonGroupAnimation(KDecoration3::DecorationButtonGroup *buttonGroup, bool enabled, int duration);
     void updateButtonAnimation();
     void updateShadow();
-    std::shared_ptr<KDecoration3::DecorationShadow> createShadowObject(bool active);
     void updateBorderRadius();
 
     bool hideTitleBar() const;

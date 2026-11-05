@@ -16,11 +16,13 @@
 
 #include <QColor>
 #include <QHash>
+#include <QImage>
 #include <QPalette>
 #include <QPixmap>
 #include <QRect>
 
 class QPainter;
+class QRadialGradient;
 
 namespace OxygenLim
 {
@@ -48,6 +50,11 @@ public:
     // clipRect and windowRect are in decoration coordinates.
     void renderWindowBackground(QPainter *painter, const QRect &clipRect, const QRect &windowRect, const QColor &color, int yShift) const;
 
+    // Oxygen window shadow (see Oxygen::ShadowCache). Returns a square image
+    // of twice shadowSize(); a null image means shadows are disabled for
+    // that state. The shadow settings are read from oxygenrc.
+    QImage shadowImage(bool active, bool hasBorder) const;
+
     // Glossy round window button slab. size is the logical size, physicalSize
     // the size in device pixels.
     QPixmap windecoButton(const QColor &color, const QColor &glow, bool sunken, int size, int physicalSize) const;
@@ -57,12 +64,14 @@ private:
 
     bool lowThreshold(const QColor &color) const;
     bool highThreshold(const QColor &color) const;
+    void renderShadowGradient(QPainter &painter, const QRectF &rect, const QRadialGradient &gradient, bool hasBorder) const;
     void drawShadow(QPainter &painter, const QColor &color, int size) const;
     void drawOuterGlow(QPainter &painter, const QColor &color, int size) const;
 
     qreal m_contrast = 0.7;
     qreal m_bgContrast = 0.9;
-    qreal m_shadowGain = 1.0;
+    static constexpr qreal s_shadowGain = 1.5;
+    static constexpr int s_shadowOverlap = 4;
 };
 
 } // namespace OxygenLim

@@ -203,6 +203,7 @@ private:
 
 
     friend class AppMenuButton;
+    friend class Button;
     friend class Decoration;
 };
 
