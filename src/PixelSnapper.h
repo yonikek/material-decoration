@@ -23,7 +23,7 @@
 
 class QPainter;
 
-namespace Material
+namespace OxygenLim
 {
 
 class PixelSnapper
@@ -76,4 +76,4 @@ private:
     bool m_invertible;
 };
 
-} // namespace Material
+} // namespace OxygenLim

@@ -23,7 +23,7 @@
 #include <QList>
 #include <QSharedPointer>
 
-namespace Material
+namespace OxygenLim
 {
 
 using InternalSettingsPtr = QSharedPointer<InternalSettings>;
@@ -45,9 +45,6 @@ enum ExceptionMask {
     HideApplicationMenu = 1 << 1,
     HamburgerMenu = 1 << 2,
     HideShadow = 1 << 3,
-    SquareCorners = 1 << 4,
-    OutlineActive = 1 << 5,
-    MenusFollowDecorationColors = 1 << 6,
 };
 
 void copyInternalSettings(const InternalSettingsPtr &src, const InternalSettingsPtr &dst);
@@ -68,4 +65,4 @@ private:
     InternalSettingsList m_exceptions;
 };
 
-} // namespace Material
+} // namespace OxygenLim

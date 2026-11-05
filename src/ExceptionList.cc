@@ -20,7 +20,7 @@
 #include <KConfigGroup>
 #include <algorithm>
 
-namespace Material
+namespace OxygenLim
 {
 
 void copyInternalSettings(const InternalSettingsPtr &src, const InternalSettingsPtr &dst)
@@ -29,18 +29,6 @@ void copyInternalSettings(const InternalSettingsPtr &src, const InternalSettings
         return;
     }
     dst->setTitleAlignment(src->titleAlignment());
-    dst->setButtonSize(src->buttonSize());
-    dst->setActiveOpacity(src->activeOpacity());
-    dst->setInactiveOpacity(src->inactiveOpacity());
-    dst->setCornerRadius(src->cornerRadius());
-    dst->setBottomCornerRadiusFlag(src->bottomCornerRadiusFlag());
-    dst->setSquareCornersTiled(src->squareCornersTiled());
-    dst->setOutlineActive(src->outlineActive());
-    dst->setUseSystemColors(src->useSystemColors());
-    dst->setMenusFollowDecorationColors(src->menusFollowDecorationColors());
-    dst->setUseCustomBorderColors(src->useCustomBorderColors());
-    dst->setActiveBorderColor(src->activeBorderColor());
-    dst->setInactiveBorderColor(src->inactiveBorderColor());
     dst->setHideCaptionWhenLimitedSpace(src->hideCaptionWhenLimitedSpace());
     dst->setShowCaptionOnHover(src->showCaptionOnHover());
     dst->setMinWidthForCaption(src->minWidthForCaption());
@@ -55,9 +43,6 @@ void copyInternalSettings(const InternalSettingsPtr &src, const InternalSettings
     dst->setUseSystemMenuFont(src->useSystemMenuFont());
     dst->setAnimationsEnabled(src->animationsEnabled());
     dst->setAnimationsDuration(src->animationsDuration());
-    dst->setShadowSize(src->shadowSize());
-    dst->setShadowColor(src->shadowColor());
-    dst->setShadowStrength(src->shadowStrength());
     dst->setLongPressEnabled(src->longPressEnabled());
     dst->setLongPressDuration(src->longPressDuration());
     dst->setDragFromButtonsEnabled(src->dragFromButtonsEnabled());
@@ -69,7 +54,6 @@ void copyInternalSettings(const InternalSettingsPtr &src, const InternalSettings
     dst->setMask(src->mask());
     dst->setHideTitleBar(src->hideTitleBar());
     dst->setHideApplicationMenu(src->hideApplicationMenu());
-    dst->setSquareCorners(src->squareCorners());
     dst->setHideShadow(src->hideShadow());
 }
 
@@ -124,18 +108,13 @@ void ExceptionList::readConfig(const KSharedConfig::Ptr &config)
         const int defaultMask = ExceptionMask::HideTitleBar |
                                 ExceptionMask::HideApplicationMenu |
                                 ExceptionMask::HamburgerMenu |
-                                ExceptionMask::HideShadow |
-                                ExceptionMask::SquareCorners |
-                                ExceptionMask::OutlineActive;
+                                ExceptionMask::HideShadow;
         const int mask = group.readEntry("Mask", defaultMask);
         exception->setMask(mask);
         exception->setHideTitleBar(group.readEntry("HideTitleBar", exception->hideTitleBar()));
         exception->setHideApplicationMenu(group.readEntry("HideApplicationMenu", exception->hideApplicationMenu()));
         exception->setHamburgerMenu(group.readEntry("HamburgerMenu", exception->hamburgerMenu()));
         exception->setHideShadow(group.readEntry("HideShadow", exception->hideShadow()));
-        exception->setSquareCorners(group.readEntry("SquareCorners", exception->squareCorners()));
-        exception->setOutlineActive(group.readEntry("OutlineActive", exception->outlineActive()));
-        exception->setMenusFollowDecorationColors(group.readEntry("MenusFollowDecorationColors", exception->menusFollowDecorationColors()));
 
         m_exceptions.append(exception);
     }
@@ -171,12 +150,9 @@ void ExceptionList::writeConfig(KSharedConfig::Ptr config)
         group.writeEntry("HideApplicationMenu", exception->hideApplicationMenu());
         group.writeEntry("HamburgerMenu", exception->hamburgerMenu());
         group.writeEntry("HideShadow", exception->hideShadow());
-        group.writeEntry("SquareCorners", exception->squareCorners());
-        group.writeEntry("OutlineActive", exception->outlineActive());
-        group.writeEntry("MenusFollowDecorationColors", exception->menusFollowDecorationColors());
     }
 
     config->sync();
 }
 
-} // namespace Material
+} // namespace OxygenLim

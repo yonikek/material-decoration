@@ -28,12 +28,12 @@ if(DBUS_RUN_SESSION)
         ../src/AltKeyMonitor.cc ../src/MenuMnemonics.cc)
     set_target_properties(navigablemenu_test PROPERTIES AUTOMOC ON)
     target_include_directories(navigablemenu_test PRIVATE ../src ${PROJECT_BINARY_DIR}/src ${PROJECT_BINARY_DIR})
-    target_link_libraries(navigablemenu_test PRIVATE materialdecoration_core Qt6::Widgets Qt6::Test
+    target_link_libraries(navigablemenu_test PRIVATE oxygendecorationlim_core Qt6::Widgets Qt6::Test
         KF6::WidgetsAddons KF6::GuiAddons)
     # Reuse the optional protocol generated for AltKeyMonitor in the plugin.
-    get_target_property(decoration_sources materialdecoration SOURCES)
+    get_target_property(decoration_sources oxygendecorationlim SOURCES)
     foreach(source IN LISTS decoration_sources)
-        if(source MATCHES "wayland-material-keystate-protocol\\.c$")
+        if(source MATCHES "wayland-oxygenlim-keystate-protocol\\.c$")
             find_package(Wayland REQUIRED COMPONENTS Client)
             target_sources(navigablemenu_test PRIVATE ${source})
             target_link_libraries(navigablemenu_test PRIVATE Wayland::Client)
@@ -49,12 +49,6 @@ if(DBUS_RUN_SESSION)
     add_test(NAME dbusmenuimporter COMMAND ${DBUS_RUN_SESSION} -- $<TARGET_FILE:dbusmenuimporter_test>)
     set_tests_properties(dbusmenuimporter PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
-    add_executable(menucolorssettings_test MenuColorsSettingsTest.cc)
-    set_target_properties(menucolorssettings_test PROPERTIES AUTOMOC ON)
-    target_include_directories(menucolorssettings_test PRIVATE ../src ${PROJECT_BINARY_DIR}/src ${PROJECT_BINARY_DIR})
-    target_link_libraries(menucolorssettings_test PRIVATE materialdecoration_core Qt6::Widgets Qt6::Test)
-    add_test(NAME menucolorssettings COMMAND ${DBUS_RUN_SESSION} -- $<TARGET_FILE:menucolorssettings_test>)
-    set_tests_properties(menucolorssettings PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
     add_executable(longpressaction_test LongPressActionTest.cc ../src/LongPressAction.cc)
     set_target_properties(longpressaction_test PROPERTIES AUTOMOC ON)

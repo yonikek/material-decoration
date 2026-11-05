@@ -31,7 +31,7 @@
 #include <QKeyEvent>
 #include <QTimer>
 
-namespace Material
+namespace OxygenLim
 {
 
 NavigableMenu::NavigableMenu(Decoration *decoration, QWidget *parent)
@@ -39,7 +39,7 @@ NavigableMenu::NavigableMenu(Decoration *decoration, QWidget *parent)
     , m_decoration(decoration)
 {
     // KWin exposes the Qt window title as caption to the companion script.
-    setWindowTitle(QStringLiteral("com.github.guiodic.material-decoration.popup"));
+    setWindowTitle(QStringLiteral("oxygen-decoration-lim.popup"));
     connect(AltKeyMonitor::instance(), &AltKeyMonitor::altPressedChanged, this, [this](bool pressed) {
         if (isVisible()) synchronizeMenuMnemonicVisibility(pressed);
     });
@@ -53,10 +53,9 @@ NavigableMenu::NavigableMenu(Decoration *decoration, QWidget *parent)
 
 void NavigableMenu::showEvent(QShowEvent *event)
 {
-    // An overflow action can present a submenu owned by a different menu.
-    // Read the decoration palette directly instead of inheriting its parent.
-    setPalette(m_decoration && m_decoration->m_internalSettings->menusFollowDecorationColors()
-        ? m_decoration->window()->palette() : QPalette());
+    // An overflow action can present a submenu owned by a different menu:
+    // always use the application's default palette, not the parent's.
+    setPalette(QPalette());
     QMenu::showEvent(event);
     synchronizeMenuMnemonicVisibility(AltKeyMonitor::instance()->isAltPressed());
 }
@@ -88,4 +87,4 @@ void NavigableMenu::keyPressEvent(QKeyEvent *event)
     }
 }
 
-} // namespace Material
+} // namespace OxygenLim

@@ -1,0 +1,16 @@
+{
+    "KPlugin": {
+        "Description": "Window decoration",
+        "EnabledByDefault": true,
+        "Id": "oxygen-decoration-lim",
+        "Name": "oxygen-decoration-lim",
+        "ServiceTypes": [
+            "org.kde.kdecoration3"
+        ]
+    },
+    "X-KDE-ConfigModule": "oxygendecorationlim_kcm",
+    "org.kde.kdecoration3": {
+        "blur": false,
+        "styles": ["shadow", "titled"]
+    }
+}

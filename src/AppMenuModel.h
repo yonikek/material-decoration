@@ -32,7 +32,7 @@
 #include <QTimer>
 #include <QtGlobal>
 
-namespace Material
+namespace OxygenLim
 {
 
 class KDBusMenuImporter;
@@ -98,4 +98,4 @@ private:
     QPointer<KDBusMenuImporter> m_importer;
 };
 
-} // namespace Material
+} // namespace OxygenLim

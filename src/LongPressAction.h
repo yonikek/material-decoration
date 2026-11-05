@@ -6,7 +6,7 @@
 
 class QObject;
 
-namespace Material
+namespace OxygenLim
 {
 // Checks availability only; the shortcut API does not acknowledge execution.
 void checkLongPressAction(QObject *context, const QString &shortcut, const QString &script,

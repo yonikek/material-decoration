@@ -1,0 +1,481 @@
+# Simplified Chinese translation for oxygendecorationlim_kcm
+# SPDX-FileCopyrightText: 2025 Guido Iodice
+# This file is distributed under the same license as the oxygendecorationlim package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-08 13:54+0000\n"
+"PO-Revision-Date: 2025-10-10 16:53+0800\n"
+"Last-Translator: su226 <thesu226@outlook.com>\n"
+"Language-Team: Chinese <kde-i18n-doc@kde.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Lokalize 25.08.2\n"
+
+#: oxygendecorationlim_kcm.json
+msgid "Material Decoration"
+msgstr "Material 质感窗口装饰"
+
+#: oxygendecorationlim_kcm.json
+msgid "Configuration module for the Material Decoration"
+msgstr "Material 质感窗口装饰的配置模块"
+
+#: config.ui:20
+msgid "Appearance"
+msgstr "外观"
+
+#: config.ui:26
+msgid "Title alignment"
+msgstr "标题对齐"
+
+#: config.ui:33
+msgid "Button size"
+msgstr "按钮大小"
+
+#: config.ui:40
+msgid "Active window opacity"
+msgstr "活动窗口透明度"
+
+#: config.ui:58
+msgid "Inactive window opacity"
+msgstr "非活动窗口透明度"
+
+#: config.ui:76
+msgid "Corner radius"
+msgstr "圆角半径"
+
+#: config.ui:95
+msgid "Menu and Search"
+msgstr "菜单和搜索"
+
+#: config.ui:101
+msgid "Always show application menu"
+msgstr "始终显示应用程序菜单"
+
+#: config.ui:108
+msgid "Enable search button"
+msgstr "启用搜索按钮"
+
+#: config.ui:115
+msgid "Show disabled menu actions"
+msgstr "显示禁用的菜单操作"
+
+#: config.ui:122
+msgid "Use hamburger menu"
+msgstr "使用折叠菜单"
+
+#: config.ui:129
+msgid "Menu button horizontal padding"
+msgstr "菜单按钮水平填充"
+
+#: config.ui:139
+msgid "Shadows"
+msgstr "阴影"
+
+#: config.ui:145
+msgid "Shadow size"
+msgstr "阴影大小"
+
+#: config.ui:152
+msgid "Shadow color"
+msgstr "阴影颜色"
+
+#: config.ui:159
+msgid "Shadow strength"
+msgstr "阴影强度"
+
+#: config.ui:185
+msgid "Animations"
+msgstr "动画"
+
+#: config.ui:191
+msgid "Enable animations"
+msgstr "启用动画"
+
+#: config.ui:198
+msgid "Animation duration"
+msgstr "动画时长"
+
+#: kcm.cpp:30
+msgid "Left"
+msgstr "居左"
+
+#: kcm.cpp:31
+msgid "Center"
+msgstr "居中"
+
+#: kcm.cpp:32
+msgid "Center (Full Width)"
+msgstr "居中（完整宽度）"
+
+#: kcm.cpp:33
+msgid "Right"
+msgstr "居右"
+
+#: kcm.cpp:34
+msgid "Hidden"
+msgstr "隐藏"
+
+#: kcm.cpp:36
+msgid "Very Tiny"
+msgstr "极小"
+
+#: kcm.cpp:37
+msgid "Tiny"
+msgstr "超小"
+
+#: kcm.cpp:38 kcm.cpp:44
+msgid "Small"
+msgstr "小"
+
+#: kcm.cpp:39
+msgid "Default"
+msgstr "默认"
+
+#: kcm.cpp:40 kcm.cpp:46
+msgid "Large"
+msgstr "大"
+
+#: kcm.cpp:41 kcm.cpp:47
+msgid "Very Large"
+msgstr "超大"
+
+#: kcm.cpp:43
+msgid "None"
+msgstr "无"
+
+#: kcm.cpp:45
+msgid "Medium"
+msgstr "中等"
+
+#: config.ui:136
+msgid "Use system menu font"
+msgstr "使用系统菜单字体"
+
+#: config.ui:110
+msgid "Use custom border colors"
+msgstr "使用自定义边框颜色"
+
+#: config.ui:117
+msgid "Active window border color"
+msgstr "活动窗口边框颜色"
+
+#: config.ui:127
+msgid "Inactive window border color"
+msgstr "非活动窗口边框颜色"
+
+#: config.ui:145
+msgid "Round bottom corners"
+msgstr "圆润底角"
+
+#: config.ui:154
+msgid "Hide window title when space is limited"
+msgstr "当空间有限时隐藏窗口标题"
+
+msgid "Use system colors"
+msgstr "使用系统颜色"
+
+msgid "Button Options"
+msgstr "按钮选项"
+
+msgid "Allow window dragging from buttons"
+msgstr "允许从按钮拖动窗口"
+
+msgid "Enable long-press actions on window buttons"
+msgstr "启用窗口按钮上的长按操作"
+
+msgid ""
+"<html><body><div style=\"width: 350px;\">\n"
+"<p>When enabled:</p>\n"
+"<ul>\n"
+"<li>Long-pressing the close button minimizes the window to the system tray (requires the kwin-minimize2tray plugin)</li>\n"
+"<li>Long-pressing the minimize button minimizes all windows except the current one (requires Plasma 6.6 or later)</li>\n"
+"</ul>\n"
+"</div></body></html>"
+msgstr ""
+"<html><body><div style=\"width: 350px;\">\n"
+"<p>启用后：</p>\n"
+"<ul>\n"
+"<li>长按关闭按钮将窗口最小化到系统托盘 (需要 kwin-minimize2tray 插件)</li>\n"
+"<li>长按最小化按钮将最小化除当前窗口外的所有窗口 (需要 Plasma 6.6 或更高版本)</li>\n"
+"</ul>\n"
+"</div></body></html>"
+
+msgid "Long-press duration"
+msgstr "长按持续时间"
+
+msgid "Minimum reserved space"
+msgstr "最小保留空间"
+
+msgid "Ignore top-level menu labels"
+msgstr "忽略顶级菜单标签"
+
+msgid "Also ignore submenu labels"
+msgstr "同时也忽略子菜单标签"
+
+msgid "Paint a thin outline around the window"
+msgstr "在窗口周围绘制细轮廓"
+
+msgid "Show window title on mouse over"
+msgstr "鼠标悬停时显示窗口标题"
+
+#: src/kcm/ExceptionListWidget.cc:66
+msgid "Add..."
+msgstr "添加..."
+
+#: src/kcm/DetectDialog.cc:79
+msgid ""
+"Captured Window Class: %1\n"
+"Captured Window Title: %2"
+msgstr ""
+"捕获的窗口类：%1\n"
+"捕获的窗口标题：%2"
+
+#: src/kcm/ExceptionModel.cc:52
+msgid "Class"
+msgstr "类"
+
+#: src/kcm/DetectDialog.cc:41
+msgid "Click 'Detect' and then click on the target window to capture its properties."
+msgstr "点击“检测”，然后点击目标窗口以捕获其属性。"
+
+#: src/kcm/DetectDialog.cc:45
+msgid "Detect"
+msgstr "检测"
+
+#: src/kcm/DetectDialog.cc:37
+msgid "Detect Window Properties"
+msgstr "检测窗口属性"
+
+#: src/kcm/ExceptionDialog.cc:50
+msgid "Detect Window Properties..."
+msgstr "检测窗口属性..."
+
+#: src/kcm/ExceptionDialog.cc:76
+msgid "Don't draw window shadow"
+msgstr "不绘制窗口阴影"
+
+#: src/kcm/ExceptionDialog.cc:77
+msgid "Don't round window corners"
+msgstr "不圆润窗口角"
+
+#: src/kcm/ExceptionListWidget.cc:67
+msgid "Edit..."
+msgstr "编辑..."
+
+#: src/kcm/ExceptionModel.cc:50
+msgid "Empty pattern"
+msgstr "空模式"
+
+#: src/kcm/config.ui:238
+msgid "Enable fuzzy search"
+msgstr "启用模糊搜索"
+
+#: src/kcm/ExceptionDialog.cc:64
+msgid "Exact Match"
+msgstr "精确匹配"
+
+#: src/kcm/DetectDialog.cc:82
+msgid "Failed to detect window info: %1"
+msgstr "未能检测到窗口信息：%1"
+
+#: src/kcm/ExceptionDialog.cc:73
+msgid "Hide window title bar"
+msgstr "隐藏窗口标题栏"
+
+#: src/kcm/ExceptionDialog.cc:61
+msgid "Match against:"
+msgstr "匹配对象："
+
+#: src/kcm/ExceptionDialog.cc:65
+msgid "Matching mode:"
+msgstr "匹配模式："
+
+#: src/kcm/ExceptionListWidget.cc:70
+msgid "Move Down"
+msgstr "下移"
+
+#: src/kcm/ExceptionListWidget.cc:69
+msgid "Move Up"
+msgstr "上移"
+
+#: src/kcm/ExceptionDialog.cc:78
+msgid "Paint a thin line around the window"
+msgstr "在窗口周围绘制细线"
+
+#: src/kcm/ExceptionDialog.cc:101
+msgid "Pattern cannot be empty."
+msgstr "模式不能为空。"
+
+#: src/kcm/DetectDialog.cc:59
+msgid "Querying KWin for window information..."
+msgstr "正在向 KWin 查询窗口信息..."
+
+#: src/kcm/ExceptionDialog.cc:64
+msgid "Substring Match"
+msgstr "子字符串匹配"
+
+#: src/kcm/ExceptionListWidget.cc:68
+msgid "Remove"
+msgstr "移除"
+
+#: src/kcm/ExceptionListWidget.cc:82
+msgid "Rules are evaluated from top to bottom; the first matching rule will be applied."
+msgstr "规则将从上到下依序评估；将应用第一个匹配的规则。"
+
+#: src/kcm/ExceptionDialog.cc:75
+msgid "Show menu as hamburger"
+msgstr "将菜单显示为折叠菜单"
+
+#: src/kcm/ExceptionDialog.cc:74
+msgid "Show the window title and hide the menu"
+msgstr "显示窗口标题并隐藏菜单"
+
+#: src/kcm/ExceptionModel.cc:52
+msgid "Title"
+msgstr "标题"
+
+#: src/kcm/ExceptionDialog.cc:101 src/kcm/ExceptionDialog.cc:108
+msgid "Warning"
+msgstr "警告"
+
+#: src/kcm/ExceptionDialog.cc:59
+msgid "Window Class"
+msgstr "窗口类"
+
+#: src/kcm/ExceptionDialog.cc:41
+msgid "Window Exception Settings"
+msgstr "窗口例外设置"
+
+#: src/kcm/ExceptionDialog.cc:46
+msgid "Window Identification"
+msgstr "窗口标识"
+
+#: src/kcm/ExceptionDialog.cc:70
+msgid "Window Options"
+msgstr "窗口选项"
+
+#: src/kcm/ExceptionDialog.cc:56
+msgid "Window Property / Pattern:"
+msgstr "窗口属性 / 模式："
+
+#: src/kcm/ExceptionDialog.cc:59
+msgid "Window Title"
+msgstr "窗口标题"
+
+#: src/kcm/config.ui:440
+msgid "Window-Specific Overrides"
+msgstr "特定窗口覆盖"
+
+#: src/kcm/config.ui:35
+msgid "Don't round corners for tiled windows"
+msgstr "不对平铺窗口进行圆角处理"
+
+#: src/TilingPopup.cc
+msgid "Left half"
+msgstr "左半部分"
+
+#: src/TilingPopup.cc
+msgid "Right half"
+msgstr "右半部分"
+
+#: src/TilingPopup.cc
+msgid "Top half"
+msgstr "上半部分"
+
+#: src/TilingPopup.cc
+msgid "Bottom half"
+msgstr "下半部分"
+
+#: src/TilingPopup.cc
+msgid "Top left quarter"
+msgstr "左上四分之一区域"
+
+#: src/TilingPopup.cc
+msgid "Top right quarter"
+msgstr "右上四分之一区域"
+
+#: src/TilingPopup.cc
+msgid "Bottom left quarter"
+msgstr "左下四分之一区域"
+
+#: src/TilingPopup.cc
+msgid "Bottom right quarter"
+msgstr "右下四分之一区域"
+
+#: src/TilingPopup.cc
+msgid "Window tiling layouts"
+msgstr "窗口平铺布局"
+
+#: src/Decoration.cc
+msgid "Enable the Oxygen LIM Tiling Popup script in System Settings > Window Management > KWin Scripts."
+msgstr "请在系统设置 > 窗口管理 > KWin 脚本中启用 Oxygen LIM Tiling Popup 脚本。"
+
+#: src/Button.cc
+msgid "Install kwin-minimize2tray and enable Minimize to Tray in System Settings > Window Management > KWin Scripts."
+msgstr "请安装 kwin-minimize2tray，并在系统设置 > 窗口管理 > KWin 脚本中启用 Minimize to Tray。"
+
+#: src/Button.cc
+msgid "The action to minimize all other windows is unavailable. It requires Plasma 6.6 or later."
+msgstr "最小化所有其他窗口的操作不可用。此操作需要 Plasma 6.6 或更新版本。"
+
+#: src/kcm/config.ui
+msgid "Open tiling popup when hovering over maximize"
+msgstr "鼠标悬停在最大化按钮上时打开平铺弹出菜单"
+
+#: src/kcm/config.ui
+msgid "Tiling popup hover delay"
+msgstr "平铺弹出菜单悬停延迟"
+
+#: src/TilingPopup.cc
+msgid "Custom tiling layout (Meta+T)"
+msgstr "自定义平铺布局（Meta+T）"
+
+#: src/TilingPopup.cc
+msgid "Custom layout unavailable"
+msgstr "自定义布局不可用"
+
+#: src/TilingPopup.cc
+msgid "Custom tile %1"
+msgstr "自定义平铺区域 %1"
+
+#: src/Decoration.cc
+msgid "The custom tile is unavailable. Open the popup again."
+msgstr "自定义平铺区域不可用。请重新打开弹出菜单。"
+
+#: src/Button.cc
+msgid "Press and hold to minimize other windows"
+msgstr "按住以最小化其他窗口"
+
+#: src/Button.cc
+msgid "Press and hold to show snapping zones"
+msgstr "按住以显示贴靠区域"
+
+#: src/Button.cc
+msgid "Press and hold to minimize to the notification area"
+msgstr "按住以最小化到通知区域"
+
+#: src/TilingPopup.cc
+msgid "Meta+T to edit snapping zones"
+msgstr "按 Meta+T 编辑贴靠区域"
+
+#: src/kcm/ExceptionDialog.cc
+msgid "Menus follow decoration colors"
+msgstr "菜单跟随窗口装饰配色"
+
+#: src/kcm/ExceptionDialog.cc
+msgid "Use global setting"
+msgstr "使用全局设置"
+
+#: src/kcm/ExceptionDialog.cc
+msgid "Enabled"
+msgstr "启用"
+
+#: src/kcm/ExceptionDialog.cc
+msgid "Disabled"
+msgstr "禁用"

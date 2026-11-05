@@ -20,7 +20,7 @@
 #include <KLocalizedString>
 #include <algorithm>
 
-namespace Material
+namespace OxygenLim
 {
 
 ExceptionModel::ExceptionModel(QObject *parent)
@@ -139,4 +139,4 @@ void ExceptionModel::moveDown(int index)
     }
 }
 
-} // namespace Material
+} // namespace OxygenLim

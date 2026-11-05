@@ -21,7 +21,7 @@
 // own
 #include "AppMenuButton.h"
 
-namespace Material
+namespace OxygenLim
 {
 
 class Decoration;
@@ -37,4 +37,4 @@ public:
     void paintIcon(QPainter *painter, const QRectF &iconRect, const PixelSnapper &snapper) override;
 };
 
-} // namespace Material
+} // namespace OxygenLim

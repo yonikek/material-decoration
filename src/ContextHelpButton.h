@@ -19,7 +19,7 @@
 
 // own
 #include "Button.h"
-#include "Material.h"
+#include "OxygenLim.h"
 
 // KDecoration
 #include <KDecoration3/DecoratedWindow>
@@ -31,7 +31,7 @@
 #include <QRectF>
 #include <QSizeF>
 
-namespace Material
+namespace OxygenLim
 {
 
 class ContextHelpButton
@@ -72,4 +72,4 @@ public:
     }
 };
 
-} // namespace Material
+} // namespace OxygenLim

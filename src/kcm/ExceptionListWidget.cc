@@ -25,7 +25,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-namespace Material
+namespace OxygenLim
 {
 
 namespace
@@ -207,7 +207,7 @@ void ExceptionListWidget::down()
 
 void ExceptionListWidget::load()
 {
-    auto config = KSharedConfig::openConfig(QStringLiteral("kdecoration_materialrc"));
+    auto config = KSharedConfig::openConfig(QStringLiteral("oxygen-decoration-limrc"));
     config->reparseConfiguration();
     ExceptionList list;
     list.readConfig(config);
@@ -219,7 +219,7 @@ void ExceptionListWidget::load()
 
 void ExceptionListWidget::save()
 {
-    auto config = KSharedConfig::openConfig(QStringLiteral("kdecoration_materialrc"));
+    auto config = KSharedConfig::openConfig(QStringLiteral("oxygen-decoration-limrc"));
     ExceptionList list;
     list.setExceptions(m_model->exceptions());
     list.writeConfig(config);
@@ -255,9 +255,7 @@ bool ExceptionListWidget::isChanged() const
             a->hideTitleBar() != b->hideTitleBar() ||
             a->hideApplicationMenu() != b->hideApplicationMenu() ||
             a->hamburgerMenu() != b->hamburgerMenu() ||
-            a->hideShadow() != b->hideShadow() ||
-            a->squareCorners() != b->squareCorners() ||
-            a->outlineActive() != b->outlineActive()) {
+            a->hideShadow() != b->hideShadow()) {
             return true;
         }
     }
@@ -265,4 +263,4 @@ bool ExceptionListWidget::isChanged() const
     return false;
 }
 
-} // namespace Material
+} // namespace OxygenLim

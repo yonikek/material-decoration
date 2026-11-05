@@ -36,6 +36,7 @@
 #include <memory>
 #include <QVariant>
 #include <QPainterPath>
+#include <KDecoration3/DecorationShadow>
 #include <QTimer>
 #include <QElapsedTimer>
 
@@ -44,7 +45,7 @@ namespace KDecoration3
 class DecorationButtonGroup;
 }
 
-namespace Material
+namespace OxygenLim
 {
 
 class Button;
@@ -108,30 +109,26 @@ private:
 
     QPoint windowPos() const;
 
-    qreal bottomBorderSize() const;
-    qreal sideBorderSize() const;
-    qreal topBorderSize() const;
-    
+    // --- Oxygen metrics -------------------------------------------------
+    // Size of the glossy round window buttons (Oxygen "buttonHeight").
+    int buttonHeight() const;
+    // Height of the caption/menu row (Oxygen "captionHeight").
+    qreal captionHeight() const;
+    // Vertical offset of the caption/button row from the top of the window.
+    qreal rowTop() const;
+    qreal buttonSpacing() const;
+    qreal sideMargin() const;
+    qreal borderSize(bool bottom = false) const;
+    bool isMaximized() const;
+    bool isMaximizedHorizontally() const;
+    bool isMaximizedVertically() const;
+    bool isShadowOnly() const;
     bool hasNoBorders() const;
+    bool hasNoSideBorders() const;
 
-    bool isLeftEdge() const;
-    bool isRightEdge() const;
-    bool isTopEdge() const;
-    bool isBottomEdge() const;
-    bool isTiled() const;
-
-    bool leftBorderVisible() const;
-    bool rightBorderVisible() const;
-    bool topBorderVisible() const;
-    bool bottomBorderVisible() const;
-
-    bool roundTopLeftCorners() const;
-    bool roundTopRightCorners() const;
-
-    qreal leftOffset() const { return leftBorderVisible() ? sideBorderSize() : 0; }
-    qreal rightOffset() const { return rightBorderVisible() ? sideBorderSize() : 0; }
-    qreal topOffset() const { return topBorderVisible() ? topBorderSize() : 0; }
-    qreal bottomOffset() const { return bottomBorderVisible() ? bottomBorderSize() : 0; }
+    qreal leftOffset() const;
+    qreal rightOffset() const;
+    qreal bottomOffset() const;
 
     void setupMenu();
     void updateBlur();
@@ -150,9 +147,8 @@ private:
     void setButtonGroupAnimation(KDecoration3::DecorationButtonGroup *buttonGroup, bool enabled, int duration);
     void updateButtonAnimation();
     void updateShadow();
-    std::shared_ptr<KDecoration3::DecorationShadow> createShadowObject(const float strengthScale);
-    void updateCornerRadiusAndOutline();
-    void updatePaths();
+    std::shared_ptr<KDecoration3::DecorationShadow> createShadowObject(bool active);
+    void updateBorderRadius();
 
     bool hideTitleBar() const;
     void setInternalSettings(const QSharedPointer<InternalSettings> &settings);
@@ -171,7 +167,7 @@ private:
     bool dragFromButtonsEnabled() const;
     bool hideCaptionWhenLimitedSpace() const;
     bool showCaptionOnHover() const;
-    qreal buttonPadding() const;
+    // Total height of the title bar, i.e. the top border (Oxygen "borderTop").
     qreal titleBarHeight() const;
     qreal appMenuCaptionSpacing() const;
     qreal captionMinWidth() const;
@@ -187,35 +183,22 @@ private:
     bool dragMoveTick(const QPoint pos);
     void unPressAllButtons();
 
-    QColor borderColor() const;
-    void updateColors();
-    QColor titleBarBackgroundColor() const { return m_titleBarBackgroundColor; }
-    QColor titleBarOpaqueBackgroundColor() const { return m_titleBarOpaqueBackgroundColor; }
-    QColor titleBarForegroundColor() const { return m_titleBarForegroundColor; }
+    // Colours follow the window palette, like the Oxygen style does.
+    QColor titleBarBackgroundColor() const;
+    QColor titleBarOpaqueBackgroundColor() const { return titleBarBackgroundColor(); }
+    QColor titleBarForegroundColor() const;
 
-    void paintFrameBackground(QPainter *painter, const QRectF &repaintRegion) const;
-    void paintTitleBarBackground(QPainter *painter, const QRectF &repaintRegion) const;
+    void paintWindowBackground(QPainter *painter, const QRectF &repaintRegion) const;
     void paintCaption(QPainter *painter, const QRectF &repaintRegion) const;
     void paintButtons(QPainter *painter, const QRectF &repaintRegion) const;
-
-    qreal cornerRadius() const;
 
     KDecoration3::DecorationButtonGroup *m_leftButtons = nullptr;
     KDecoration3::DecorationButtonGroup *m_rightButtons = nullptr;
     AppMenuButtonGroup *m_menuButtons = nullptr;
 
     QSharedPointer<InternalSettings> m_internalSettings;
-    qreal m_cornerRadius = 0.0;
-    bool m_bottomCornersFlag = true;
 
     QPoint m_pressedPoint;
-
-    QPainterPath m_framePath;
-    QPainterPath m_titleBarPath;
-
-    QColor m_titleBarBackgroundColor;
-    QColor m_titleBarOpaqueBackgroundColor;
-    QColor m_titleBarForegroundColor;
 
     mutable QRectF m_captionRect;
     mutable bool m_captionLimited = false;
@@ -240,4 +223,4 @@ private:
     friend class TextButton;
 };
 
-} // namespace Material
+} // namespace OxygenLim

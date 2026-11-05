@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.16.0)
-project (material-decoration)
+project (oxygen-decoration-lim)
 
 option(BUILD_TESTING "Build tests" OFF)
 
@@ -41,7 +41,7 @@ add_subdirectory (src/libdbusmenuqt)
 add_subdirectory (src)
 add_subdirectory(po)
 
-install(DIRECTORY scripts/material-tiling DESTINATION ${KDE_INSTALL_DATADIR}/kwin/scripts)
+install(DIRECTORY scripts/oxygen-lim-tiling DESTINATION ${KDE_INSTALL_DATADIR}/kwin/scripts)
 
 include(CTest)
 if(BUILD_TESTING)
@@ -52,10 +52,10 @@ feature_summary(WHAT ALL)
 
 # CPack Debian packaging
 set(CPACK_GENERATOR "DEB")
-set(CPACK_PACKAGE_NAME "material-decoration")
+set(CPACK_PACKAGE_NAME "oxygen-decoration-lim")
 set(CPACK_PACKAGE_VENDOR "Guido Iodice")
 set(CPACK_PACKAGE_CONTACT "guido.iodice@gmail.com")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Material-ish window decoration theme for KWin")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Oxygen-styled window decoration theme for KWin (with locally integrated menus)")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Guido Iodice <guido.iodice@gmail.com>")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 include(CPack)

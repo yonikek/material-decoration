@@ -24,7 +24,7 @@
 #include <QAction>
 #include <QPointer>
 
-namespace Material
+namespace OxygenLim
 {
 
 class Decoration;
@@ -62,4 +62,4 @@ private:
     QString m_text;
 };
 
-} // namespace Material
+} // namespace OxygenLim

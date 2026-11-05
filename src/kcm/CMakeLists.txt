@@ -1,6 +1,6 @@
 include(KDEInstallDirs)
 
-add_definitions(-DTRANSLATION_DOMAIN="materialdecoration")
+add_definitions(-DTRANSLATION_DOMAIN="oxygendecorationlim")
 
 find_package(Qt${QT_MAJOR_VERSION} REQUIRED COMPONENTS
     Core
@@ -31,11 +31,11 @@ ki18n_wrap_ui(KCM_SRCS
     config.ui
 )
 
-add_library(materialdecoration_kcm MODULE ${KCM_SRCS})
+add_library(oxygendecorationlim_kcm MODULE ${KCM_SRCS})
 
-target_link_libraries(materialdecoration_kcm
+target_link_libraries(oxygendecorationlim_kcm
     PUBLIC
-        materialdecoration_core
+        oxygendecorationlim_core
         Qt::Core
         Qt::Gui
         Qt::Widgets
@@ -49,11 +49,11 @@ target_link_libraries(materialdecoration_kcm
         KF6::KCMUtils
 )
 
-target_include_directories(materialdecoration_kcm
+target_include_directories(oxygendecorationlim_kcm
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-install(TARGETS materialdecoration_kcm DESTINATION ${KDE_INSTALL_PLUGINDIR}/org.kde.kdecoration3.kcm/)
-install(FILES materialdecoration_kcm.json DESTINATION ${KDE_INSTALL_METAINFODIR})
-kcmutils_generate_desktop_file(materialdecoration_kcm)
+install(TARGETS oxygendecorationlim_kcm DESTINATION ${KDE_INSTALL_PLUGINDIR}/org.kde.kdecoration3.kcm/)
+install(FILES oxygendecorationlim_kcm.json DESTINATION ${KDE_INSTALL_METAINFODIR})
+kcmutils_generate_desktop_file(oxygendecorationlim_kcm)

@@ -26,7 +26,7 @@
 // Qt
 #include <QPainter>
 
-namespace Material
+namespace OxygenLim
 {
 
 class CloseButton
@@ -54,4 +54,4 @@ public:
     }
 };
 
-} // namespace Material
+} // namespace OxygenLim

@@ -4,7 +4,7 @@
 #include <QObject>
 #include <memory>
 
-namespace Material
+namespace OxygenLim
 {
 
 class AltKeyMonitor : public QObject

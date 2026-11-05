@@ -48,8 +48,8 @@ private slots:
 
         AltObserver observer;
         qApp->installEventFilter(&observer);
-        Material::synchronizeMenuMnemonicVisibility(true);
-        Material::synchronizeMenuMnemonicVisibility(false);
+        OxygenLim::synchronizeMenuMnemonicVisibility(true);
+        OxygenLim::synchronizeMenuMnemonicVisibility(false);
         QCOMPARE(observer.events, (QList<QEvent::Type>{QEvent::KeyPress, QEvent::KeyRelease}));
         QVERIFY(!observer.receivedByWidget);
         QVERIFY(menu.isVisible());
@@ -62,7 +62,7 @@ private slots:
     {
         QMenu root;
         QMenu *menu = root.addMenu(QStringLiteral("Tools"));
-        Material::manageMenuMnemonics(menu);
+        OxygenLim::manageMenuMnemonics(menu);
         QAction *open = menu->addAction(QStringLiteral("Open"));
         QAction *options = menu->addAction(QStringLiteral("Options"));
         open->setProperty("_dbusmenu_id", 77);
@@ -80,7 +80,7 @@ private slots:
     void preparesBeforeFirstPaint()
     {
         QMenu menu;
-        Material::manageMenuMnemonics(&menu);
+        OxygenLim::manageMenuMnemonics(&menu);
         QAction *action = menu.addAction(QStringLiteral("Open"));
         menu.popup(QPoint(10, 10));
         QVERIFY(hasMnemonic(action));
@@ -89,7 +89,7 @@ private slots:
     void updatesVisibleMenuAfterAsyncChanges()
     {
         QMenu menu;
-        Material::manageMenuMnemonics(&menu);
+        OxygenLim::manageMenuMnemonics(&menu);
         QAction *action = menu.addAction(QStringLiteral("Open"));
         menu.popup(QPoint(10, 10));
         QVERIFY(hasMnemonic(action));
@@ -108,7 +108,7 @@ private slots:
     void refreshingDoesNotRescheduleItself()
     {
         QMenu menu;
-        Material::manageMenuMnemonics(&menu);
+        OxygenLim::manageMenuMnemonics(&menu);
         QAction *action = menu.addAction(QStringLiteral("Open"));
         QSignalSpy changed(action, &QAction::changed);
         QTRY_VERIFY(hasMnemonic(action));
@@ -125,7 +125,7 @@ private slots:
         header->setDefaultWidget(widget);
         menu.addAction(header);
         QAction *action = menu.addAction(QStringLiteral("Open"));
-        Material::manageMenuMnemonics(&menu);
+        OxygenLim::manageMenuMnemonics(&menu);
         menu.popup(QPoint(10, 10));
         QVERIFY(hasMnemonic(action));
         QCOMPARE(header->defaultWidget(), widget);
@@ -136,7 +136,7 @@ private slots:
     void destructionCancelsPendingRefresh()
     {
         auto *menu = new QMenu;
-        Material::manageMenuMnemonics(menu);
+        OxygenLim::manageMenuMnemonics(menu);
         menu->addAction(QStringLiteral("Open"));
         const QPointer<QMenu> guard(menu);
         delete menu;

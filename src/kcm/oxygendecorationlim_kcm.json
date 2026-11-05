@@ -1,0 +1,17 @@
+{
+    "KPlugin": {
+        "Description": "Configuration module for the oxygen-decoration-lim",
+        "Id": "org.kde.kdecoration.oxygendecorationlim.kcm",
+        "Name": "oxygen-decoration-lim",
+        "Icon": "preferences-desktop-theme",
+        "Library": "oxygendecorationlim_kcm"
+    },
+    "X-KDE-PluginInfo-Catalog": "oxygendecorationlim",
+    "X-KDE-KCM-ConfigFile": "oxygen-decoration-limrc",
+    "X-KDE-ParentApp": "systemsettings",
+    "X-KDE-ParentComponents": [
+        "kcm_kwin_decorations"
+    ],
+    "X-KDE-Keywords": "decoration,oxygen,theme,window,menu",
+    "X-KDE-System-Settings-Parent-Category": "appearance"
+}

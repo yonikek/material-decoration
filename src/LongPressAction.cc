@@ -7,7 +7,7 @@
 #include <QDBusPendingReply>
 #include <QStringList>
 
-namespace Material
+namespace OxygenLim
 {
 namespace
 {

@@ -9,7 +9,7 @@
 #include <QScopedValueRollback>
 #include <QTimer>
 
-namespace Material
+namespace OxygenLim
 {
 namespace
 {

@@ -28,7 +28,7 @@
 #include <QVBoxLayout>
 #include <QVariantMap>
 
-namespace Material
+namespace OxygenLim
 {
 
 DetectDialog::DetectDialog(QWidget *parent)
@@ -89,4 +89,4 @@ void DetectDialog::detectWindow()
     });
 }
 
-} // namespace Material
+} // namespace OxygenLim

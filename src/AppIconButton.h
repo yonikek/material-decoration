@@ -32,7 +32,7 @@
 #include <QPainter>
 #include <QPalette>
 
-namespace Material
+namespace OxygenLim
 {
 
 class AppIconButton
@@ -73,4 +73,4 @@ public:
     }
 };
 
-} // namespace Material
+} // namespace OxygenLim

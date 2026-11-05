@@ -86,6 +86,7 @@ set (decoration_SRCS
     SearchButton.cc
     TextButton.cc
     DrawHelper.cc
+    OxygenHelper.cc
     TilingPopup.cc
     TilingZoneButton.cc
     LongPressAction.cc
@@ -96,7 +97,7 @@ set (decoration_SRCS
 if(HAVE_WAYLAND_KEYSTATE)
     ecm_add_wayland_client_protocol(decoration_SRCS
         PROTOCOL ${PLASMA_WAYLAND_PROTOCOLS_DIR}/keystate.xml
-        BASENAME material-keystate
+        BASENAME oxygenlim-keystate
         PRIVATE_CODE)
 endif()
 
@@ -104,21 +105,21 @@ kconfig_add_kcfg_files(decoration_SRCS
     InternalSettings.kcfgc
 )
 
-add_library (materialdecoration MODULE
+add_library (oxygendecorationlim MODULE
     ${decoration_SRCS}
 )
 
-set_target_properties(materialdecoration PROPERTIES AUTOMOC ON)
+set_target_properties(oxygendecorationlim PROPERTIES AUTOMOC ON)
 if(HAVE_WAYLAND_KEYSTATE)
-    target_link_libraries(materialdecoration PRIVATE Wayland::Client)
+    target_link_libraries(oxygendecorationlim PRIVATE Wayland::Client)
 endif()
 
-target_include_directories(materialdecoration PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(oxygendecorationlim PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
-target_link_libraries (materialdecoration
+target_link_libraries (oxygendecorationlim
     PUBLIC
         dbusmenuqt
-        materialdecoration_core
+        oxygendecorationlim_core
         Qt6::Core
         Qt6::Gui
         Qt6::DBus
@@ -147,8 +148,8 @@ set(core_SRCS
     SettingsProvider.cc
 )
 kconfig_add_kcfg_files(core_SRCS InternalSettings.kcfgc)
-add_library(materialdecoration_core STATIC ${core_SRCS})
-target_link_libraries(materialdecoration_core PUBLIC
+add_library(oxygendecorationlim_core STATIC ${core_SRCS})
+target_link_libraries(oxygendecorationlim_core PUBLIC
     Qt6::Core
     Qt6::Gui
     Qt6::DBus
@@ -158,10 +159,10 @@ target_link_libraries(materialdecoration_core PUBLIC
     KDecoration3::KDecoration
 )
 
-set_property(TARGET materialdecoration_core PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET oxygendecorationlim_core PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 include(KDEInstallDirs)
-install(TARGETS materialdecoration
+install(TARGETS oxygendecorationlim
         DESTINATION ${KDE_INSTALL_PLUGINDIR}/org.kde.kdecoration3)
         
 add_subdirectory(kcm)

@@ -24,7 +24,7 @@
 class QListView;
 class QPushButton;
 
-namespace Material
+namespace OxygenLim
 {
 
 class ExceptionListWidget : public QWidget
@@ -66,4 +66,4 @@ private:
     InternalSettingsList m_initialExceptions;
 };
 
-} // namespace Material
+} // namespace OxygenLim

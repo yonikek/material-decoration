@@ -24,7 +24,7 @@
 #include <QObject>
 #include <QSharedPointer>
 
-namespace Material
+namespace OxygenLim
 {
 
 class Decoration;
@@ -69,4 +69,4 @@ private:
     bool m_hasWindowTitleExceptions = false;
 };
 
-} // namespace Material
+} // namespace OxygenLim

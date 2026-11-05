@@ -5,7 +5,7 @@
 #include <QString>
 #include <QVector>
 
-namespace Material
+namespace OxygenLim
 {
 struct CustomTilingZone {
     QRectF rect;

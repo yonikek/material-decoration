@@ -34,7 +34,7 @@ class QPainter;
 
 #include "PixelSnapper.h"
 
-namespace Material
+namespace OxygenLim
 {
 
 class Decoration;
@@ -56,7 +56,7 @@ public:
     static KDecoration3::DecorationButton *create(KDecoration3::DecorationButtonType type, KDecoration3::Decoration *decoration, QObject *parent = nullptr);
 
     // This is called by:
-    // registerPlugin<Material::Button>(QStringLiteral("button"))
+    // registerPlugin<OxygenLim::Button>(QStringLiteral("button"))
     // It is needed to create buttons for applet-window-buttons.
     explicit Button(QObject *parent, const QVariantList &args);
 
@@ -93,6 +93,12 @@ private:
     void cancelLongPress();
     void refreshLongPressToolTip();
     QString normalToolTip() const;
+
+    void paintMenuButton(QPainter *painter, Decoration *deco);
+    void paintOxygenButton(QPainter *painter, Decoration *deco);
+    void drawOxygenIcon(QPainter *painter, qreal width, Decoration *deco);
+    qreal slabYOffset(const Decoration *deco) const;
+    bool isToggleButton() const;
 
 signals:
     void animationEnabledChanged();
@@ -146,4 +152,4 @@ protected:
     friend class Decoration;
 };
 
-} // namespace Material
+} // namespace OxygenLim

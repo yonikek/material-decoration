@@ -23,7 +23,7 @@
 #include <QDBusMessage>
 #include <QStringList>
 
-namespace Material
+namespace OxygenLim
 {
 
 SettingsProvider *SettingsProvider::self()
@@ -50,7 +50,7 @@ void SettingsProvider::reconfigure()
     m_defaultSettings = InternalSettingsPtr::create();
     m_defaultSettings->load();
 
-    auto config = KSharedConfig::openConfig(QStringLiteral("kdecoration_materialrc"));
+    auto config = KSharedConfig::openConfig(QStringLiteral("oxygen-decoration-limrc"));
     config->reparseConfiguration();
     m_exceptions.readConfig(config);
 
@@ -115,24 +115,6 @@ InternalSettingsPtr SettingsProvider::createMergedSettings(const InternalSetting
 
     if (mask & ExceptionMask::HideShadow) {
         merged->setHideShadow(exceptionSettings->hideShadow());
-        if (exceptionSettings->hideShadow()) {
-            merged->setShadowSize(InternalSettings::ShadowNone);
-        }
-    }
-
-    if (mask & ExceptionMask::SquareCorners) {
-        merged->setSquareCorners(exceptionSettings->squareCorners());
-        if (exceptionSettings->squareCorners()) {
-            merged->setCornerRadius(0);
-        }
-    }
-
-    if (mask & ExceptionMask::OutlineActive) {
-        merged->setOutlineActive(exceptionSettings->outlineActive());
-    }
-
-    if (mask & ExceptionMask::MenusFollowDecorationColors) {
-        merged->setMenusFollowDecorationColors(exceptionSettings->menusFollowDecorationColors());
     }
 
     return merged;
@@ -216,4 +198,4 @@ InternalSettingsPtr SettingsProvider::internalSettings(const QString &windowClas
     return matchedSettings;
 }
 
-} // namespace Material
+} // namespace OxygenLim

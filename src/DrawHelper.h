@@ -4,7 +4,7 @@
 #include <QPainterPath>
 #include <QRectF>
 
-namespace Material
+namespace OxygenLim
 {
 class DrawHelper
 {

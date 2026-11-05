@@ -11,10 +11,10 @@
 #include <cerrno>
 #include <cstring>
 #include <wayland-client.h>
-#include "wayland-material-keystate-client-protocol.h"
+#include "wayland-oxygenlim-keystate-client-protocol.h"
 #endif
 
-namespace Material
+namespace OxygenLim
 {
 
 class AltKeyMonitor::Private

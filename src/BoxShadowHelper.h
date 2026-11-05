@@ -24,7 +24,7 @@
 #include <QSize>
 #include <QVector>
 
-namespace Material
+namespace OxygenLim
 {
 class BoxShadowRenderer
 {
@@ -91,4 +91,4 @@ private:
     QVector<Shadow> m_shadows;
 };
 
-} // namespace Material
+} // namespace OxygenLim

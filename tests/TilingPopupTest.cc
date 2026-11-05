@@ -8,7 +8,7 @@
 #include <QToolButton>
 #include <KLocalizedString>
 
-using namespace Material;
+using namespace OxygenLim;
 
 class TilingPopupTest : public QObject
 {
@@ -71,7 +71,7 @@ private slots:
         QCOMPARE(buttons.size(), 11);
         for (int i = 0; i < buttons.size(); ++i) {
             if (i >= 4 && i <= 6) {
-                QCOMPARE(buttons[i]->toolTip(), buttons[i]->accessibleName() + QLatin1Char('\n') + i18nd("materialdecoration", "Meta+T to edit snapping zones"));
+                QCOMPARE(buttons[i]->toolTip(), buttons[i]->accessibleName() + QLatin1Char('\n') + i18nd("oxygendecorationlim", "Meta+T to edit snapping zones"));
             } else {
                 QCOMPARE(buttons[i]->toolTip(), buttons[i]->accessibleName());
             }

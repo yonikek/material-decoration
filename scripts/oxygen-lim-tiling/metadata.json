@@ -1,0 +1,26 @@
+{
+    "KPackageStructure": "KWin/Script",
+    "KPlugin": {
+        "Id": "oxygen-lim-tiling",
+        "Name": "Oxygen LIM Tiling Popup",
+        "Description": "Native tiling for the oxygen-decoration-lim window decoration popup",
+        "Version": "1.0",
+        "License": "GPL-2.0+",
+        "EnabledByDefault": true,
+        "Authors": [
+            {
+                "Name": "guiodic"
+            }
+        ],
+        "Copyright": "© 2026 guiodic",
+        "Website": "https://github.com/guiodic/oxygen-decoration-lim",
+        "Description[it]": "Affiancamento nativo delle finestre dal popup della decorazione oxygen-decoration-lim",
+        "Description[de]": "Native Fensteraufteilung über das Popup der oxygen-decoration-lim-Fensterdekoration",
+        "Description[es]": "Distribución nativa de ventanas en mosaico desde el popup de la decoración oxygen-decoration-lim",
+        "Description[fr]": "Disposition native des fenêtres en mosaïque depuis le popup de la décoration oxygen-decoration-lim",
+        "Description[nl]": "Vensters naast elkaar plaatsen via de pop-up van de oxygen-decoration-lim-vensterdecoratie",
+        "Description[zh_CN]": "通过 oxygen-decoration-lim 窗口装饰弹窗使用原生窗口平铺功能"
+    },
+    "X-Plasma-API": "javascript",
+    "X-Plasma-MainScript": "code/main.js"
+}

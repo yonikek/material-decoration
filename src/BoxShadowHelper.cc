@@ -33,7 +33,7 @@
 #include <new>
 #include <utility>
 
-namespace Material
+namespace OxygenLim
 {
 static inline int calculateBlurRadius(qreal stdDev)
 {
@@ -395,4 +395,4 @@ QSizeF BoxShadowRenderer::calculateMinimumShadowTextureSize(const QSizeF &boxSiz
     return boxSize + 2 * calculateBlurExtent(radius) + QSizeF(std::abs(offset.x()), std::abs(offset.y()));
 }
 
-} // namespace Material
+} // namespace OxygenLim

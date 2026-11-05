@@ -1,5 +1,5 @@
 /*
-  Package definition for material-decoration, a Material-ish window
+  Package definition for oxygen-decoration-lim, an Oxygen-styled window
   decoration theme for KWin (Plasma 6, KDecoration3).
 
   Built as a Qt6/KF6 CMake package; called with `callPackage` from the
@@ -35,7 +35,7 @@
 }:
 
 stdenv.mkDerivation {
-  pname = "material-decoration";
+  pname = "oxygen-decoration-lim";
   inherit version;
   src = source;
 
@@ -52,7 +52,7 @@ stdenv.mkDerivation {
     ]
     ++ lib.optionals withTests [
       dbus # provides dbus-run-session, needed by several tests
-      nodejs # runs the material-tiling KWin script test
+      nodejs # runs the oxygen-lim-tiling KWin script test
     ];
 
   buildInputs =
@@ -95,16 +95,16 @@ stdenv.mkDerivation {
   # The decoration plugin and the KCM are loaded by KWin/systemsettings at
   # runtime and are not meant to be started directly, so no mainProgram.
   meta = {
-    description = "Material-ish window decoration theme for KWin, with Locally Integrated Menu and Menu Search";
+    description = "Oxygen-styled window decoration theme for KWin (with locally integrated menus), with Locally Integrated Menu and Menu Search";
     longDescription = ''
-      Material-decoration is a window decoration theme for KWin that hides
+      oxygen-decoration-lim is a window decoration theme for KWin that hides
       the AppMenu icon button and draws the menu in the titlebar instead,
       including a search button for menu actions. It works on both X11 and
       Wayland, ships a configuration module, and installs a companion
-      "Material Tiling Popup" KWin script.
+      "Oxygen LIM Tiling Popup" KWin script.
     '';
-    homepage = "https://github.com/guiodic/material-decoration";
-    changelog = "https://github.com/guiodic/material-decoration/releases";
+    homepage = "https://github.com/guiodic/oxygen-decoration-lim";
+    changelog = "https://github.com/guiodic/oxygen-decoration-lim/releases";
     platforms = lib.platforms.linux;
     license = lib.licenses.gpl2Plus;
     maintainers = [ ];

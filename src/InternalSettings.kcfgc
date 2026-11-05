@@ -1,6 +1,6 @@
 File=InternalSettingsSchema.kcfg
 ClassName=InternalSettings
-NameSpace=Material
+NameSpace=OxygenLim
 Singleton=false
 Mutators=true
 GlobalEnums=true

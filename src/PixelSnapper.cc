@@ -19,7 +19,7 @@
 #include <QPainter>
 #include <cmath>
 
-namespace Material
+namespace OxygenLim
 {
 
 PixelSnapper::PixelSnapper(QPainter *painter)
@@ -98,4 +98,4 @@ qreal PixelSnapper::localToPhysicalScale() const
     return 0.0;
 }
 
-} // namespace Material
+} // namespace OxygenLim

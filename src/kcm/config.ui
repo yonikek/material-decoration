@@ -49,138 +49,6 @@
        <item row="0" column="1">
         <widget class="QComboBox" name="kcfg_TitleAlignment"/>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Button size</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="kcfg_ButtonSize"/>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Active window opacity</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QSpinBox" name="kcfg_ActiveOpacity">
-         <property name="suffix">
-          <string>%</string>
-         </property>
-         <property name="minimum">
-          <number>10</number>
-         </property>
-         <property name="maximum">
-          <number>100</number>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>Inactive window opacity</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QSpinBox" name="kcfg_InactiveOpacity">
-         <property name="suffix">
-          <string>%</string>
-         </property>
-         <property name="minimum">
-          <number>10</number>
-         </property>
-         <property name="maximum">
-          <number>100</number>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_10">
-         <property name="text">
-          <string>Corner radius</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QSpinBox" name="kcfg_CornerRadius">
-         <property name="suffix">
-          <string>px</string>
-         </property>
-         <property name="minimum">
-          <number>0</number>
-         </property>
-         <property name="maximum">
-          <number>16</number>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <widget class="QCheckBox" name="kcfg_BottomCorners">
-         <property name="text">
-          <string>Round bottom corners</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="1">
-        <widget class="QCheckBox" name="kcfg_SquareCornersTiled">
-         <property name="text">
-          <string>Don't round corners for tiled windows</string>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0">
-        <widget class="QCheckBox" name="kcfg_UseCustomBorderColors">
-         <property name="text">
-          <string>Use custom border colors</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0">
-        <widget class="QLabel" name="label_11">
-         <property name="text">
-          <string>Active window border color</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="1">
-        <widget class="KColorButton" name="kcfg_ActiveBorderColor">
-         <property name="alphaChannelEnabled">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="0">
-        <widget class="QLabel" name="label_12">
-         <property name="text">
-          <string>Inactive window border color</string>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="1">
-        <widget class="KColorButton" name="kcfg_InactiveBorderColor">
-         <property name="alphaChannelEnabled">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="0" colspan="2">
-        <widget class="QCheckBox" name="kcfg_OutlineActive">
-         <property name="text">
-          <string>Paint a thin outline around the window</string>
-         </property>
-        </widget>
-       </item>
        <item row="11" column="0" colspan="2">
         <widget class="QCheckBox" name="kcfg_HideCaptionWhenLimitedSpace">
          <property name="text">
@@ -315,75 +183,6 @@
          </property>
         </widget>
        </item>
-       <item row="10" column="0" colspan="2">
-        <widget class="QCheckBox" name="kcfg_UseSystemColors">
-         <property name="text">
-          <string>Use system colors</string>
-         </property>
-        </widget>
-       </item>
-       <item row="11" column="0" colspan="2">
-        <widget class="QCheckBox" name="kcfg_MenusFollowDecorationColors">
-         <property name="text">
-          <string>Menus follow decoration colors</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="shadowsTab">
-      <attribute name="title">
-       <string>Shadows</string>
-      </attribute>
-      <layout class="QFormLayout" name="formLayout_3">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>Shadow size</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QComboBox" name="kcfg_ShadowSize"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_7">
-         <property name="text">
-          <string>Shadow color</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="KColorButton" name="kcfg_ShadowColor"/>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_8">
-         <property name="text">
-          <string>Shadow strength</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <widget class="QSlider" name="kcfg_ShadowStrength">
-           <property name="maximum">
-            <number>255</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Orientation::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="spinShadowStrength">
-           <property name="maximum">
-            <number>255</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="otherTab">
@@ -483,7 +282,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_exceptions">
        <item>
-        <widget class="Material::ExceptionListWidget" name="exceptionsWidget" native="true"/>
+        <widget class="OxygenLim::ExceptionListWidget" name="exceptionsWidget" native="true"/>
        </item>
       </layout>
      </widget>
@@ -506,12 +305,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>KColorButton</class>
-   <extends>QPushButton</extends>
-   <header>kcolorbutton.h</header>
-  </customwidget>
-  <customwidget>
-   <class>Material::ExceptionListWidget</class>
+   <class>OxygenLim::ExceptionListWidget</class>
    <extends>QWidget</extends>
    <header>ExceptionListWidget.h</header>
    <container>1</container>

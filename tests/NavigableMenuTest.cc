@@ -30,10 +30,10 @@ private slots:
         QFETCH(Qt::LayoutDirection, direction);
         QFETCH(int, key);
         qApp->setLayoutDirection(direction);
-        Material::NavigableMenu menu(nullptr);
+        OxygenLim::NavigableMenu menu(nullptr);
         auto *action = menu.addAction(QStringLiteral("Open"));
-        QSignalSpy left(&menu, &Material::NavigableMenu::hitLeft);
-        QSignalSpy right(&menu, &Material::NavigableMenu::hitRight);
+        QSignalSpy left(&menu, &OxygenLim::NavigableMenu::hitLeft);
+        QSignalSpy right(&menu, &OxygenLim::NavigableMenu::hitRight);
         menu.popup(QPoint(300, 100));
         menu.setActiveAction(action);
 
@@ -54,11 +54,11 @@ private slots:
     {
         QFETCH(Qt::LayoutDirection, direction);
         qApp->setLayoutDirection(direction);
-        Material::NavigableMenu menu(nullptr);
+        OxygenLim::NavigableMenu menu(nullptr);
         auto *child = menu.addMenu(QStringLiteral("Recent files"));
         child->addAction(QStringLiteral("Document"));
-        QSignalSpy left(&menu, &Material::NavigableMenu::hitLeft);
-        QSignalSpy right(&menu, &Material::NavigableMenu::hitRight);
+        QSignalSpy left(&menu, &OxygenLim::NavigableMenu::hitLeft);
+        QSignalSpy right(&menu, &OxygenLim::NavigableMenu::hitRight);
         menu.popup(QPoint(300, 100));
         menu.setActiveAction(child->menuAction());
         const auto openKey = direction == Qt::RightToLeft ? Qt::Key_Left : Qt::Key_Right;

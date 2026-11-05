@@ -1,1 +1,1 @@
-set(POT_CATALOG_NAME materialdecoration)
+set(POT_CATALOG_NAME oxygendecorationlim)

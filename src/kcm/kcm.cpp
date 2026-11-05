@@ -20,12 +20,12 @@
 #include <QTabBar>
 
 
-K_PLUGIN_CLASS_WITH_JSON(MaterialDecorationKCM, "materialdecoration_kcm.json")
+K_PLUGIN_CLASS_WITH_JSON(OxygenDecorationLimKCM, "oxygendecorationlim_kcm.json")
 
-MaterialDecorationKCM::MaterialDecorationKCM(QObject *parent, const KPluginMetaData &data)
+OxygenDecorationLimKCM::OxygenDecorationLimKCM(QObject *parent, const KPluginMetaData &data)
     : KCModule(qobject_cast<QWidget*>(parent), data)
     , m_ui(std::make_unique<Ui::Config>())
-    , m_settings(std::make_unique<Material::InternalSettings>())
+    , m_settings(std::make_unique<OxygenLim::InternalSettings>())
 {
     m_ui->setupUi(widget());
 
@@ -40,42 +40,20 @@ MaterialDecorationKCM::MaterialDecorationKCM(QObject *parent, const KPluginMetaD
                                          i18n("Right"),
                                          i18n("Hidden")});
 
-    m_ui->kcfg_ButtonSize->addItems({i18n("Very Tiny"),
-                                     i18n("Tiny"),
-                                     i18n("Small"),
-                                     i18n("Default"),
-                                     i18n("Large"),
-                                     i18n("Very Large")});
 
-    m_ui->kcfg_ShadowSize->addItems({i18n("None"),
-                                     i18n("Small"),
-                                     i18n("Medium"),
-                                     i18n("Large"),
-                                     i18n("Very Large")});
     
-    connect(m_ui->kcfg_ShadowStrength, &QSlider::valueChanged, m_ui->spinShadowStrength, &QSpinBox::setValue);
-    connect(m_ui->spinShadowStrength, qOverload<int>(&QSpinBox::valueChanged), m_ui->kcfg_ShadowStrength, &QSlider::setValue);
 
     m_ui->longPressInfoButton->setIcon(QIcon::fromTheme(QStringLiteral("dialog-information")));
 
     setupConnections();
 }
 
-MaterialDecorationKCM::~MaterialDecorationKCM() = default;
+OxygenDecorationLimKCM::~OxygenDecorationLimKCM() = default;
 
-void MaterialDecorationKCM::setupConnections()
+void OxygenDecorationLimKCM::setupConnections()
 {
-    connect(m_ui->kcfg_TitleAlignment, &QComboBox::currentIndexChanged, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_ButtonSize, &QComboBox::currentIndexChanged, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_ActiveOpacity, &QSpinBox::valueChanged, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_InactiveOpacity, &QSpinBox::valueChanged, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_CornerRadius, &QSpinBox::valueChanged, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_OutlineActive, &QCheckBox::toggled, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_UseSystemColors, &QCheckBox::toggled, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_UseCustomBorderColors, &QCheckBox::toggled, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_ActiveBorderColor, &KColorButton::changed, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_InactiveBorderColor, &KColorButton::changed, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_MenuAlwaysShow, &QCheckBox::toggled, this, &MaterialDecorationKCM::updateChanged);
+    connect(m_ui->kcfg_TitleAlignment, &QComboBox::currentIndexChanged, this, &OxygenDecorationLimKCM::updateChanged);
+    connect(m_ui->kcfg_MenuAlwaysShow, &QCheckBox::toggled, this, &OxygenDecorationLimKCM::updateChanged);
     connect(m_ui->kcfg_MenuAlwaysShow, &QCheckBox::toggled, this, [this](bool checked) {
         if (!checked) {
             m_ui->kcfg_ShowCaptionOnHover->setChecked(false);
@@ -84,7 +62,7 @@ void MaterialDecorationKCM::setupConnections()
             m_ui->kcfg_ShowCaptionOnHover->setEnabled(true);
         }
     });
-    connect(m_ui->kcfg_SearchEnabled, &QCheckBox::toggled, this, &MaterialDecorationKCM::updateChanged);
+    connect(m_ui->kcfg_SearchEnabled, &QCheckBox::toggled, this, &OxygenDecorationLimKCM::updateChanged);
     connect(m_ui->kcfg_SearchEnabled, &QCheckBox::toggled, m_ui->kcfg_ShowDisabledActions, &QWidget::setEnabled);
     connect(m_ui->kcfg_SearchEnabled, &QCheckBox::toggled, m_ui->kcfg_SearchIgnoreTopLevel, &QWidget::setEnabled);
     connect(m_ui->kcfg_SearchEnabled, &QCheckBox::toggled, m_ui->kcfg_SearchIgnoreSubMenus, &QWidget::setEnabled);
@@ -103,45 +81,33 @@ void MaterialDecorationKCM::setupConnections()
         updateChanged();
     });
 
-    const auto updateBorderStuff = [this] {
-        const bool useCustom = m_ui->kcfg_UseCustomBorderColors->isChecked();
-        m_ui->kcfg_ActiveBorderColor->setEnabled(useCustom);
-        m_ui->kcfg_InactiveBorderColor->setEnabled(useCustom);
-    };
-    connect(m_ui->kcfg_UseCustomBorderColors, &QCheckBox::toggled, this, updateBorderStuff);
 
-    connect(m_ui->kcfg_HamburgerMenu, &QCheckBox::toggled, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_ShowDisabledActions, &QCheckBox::toggled, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_SearchFuzzyMatching, &QCheckBox::toggled, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_MenuButtonHorzPadding, &QSpinBox::valueChanged, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_UseSystemMenuFont, &QCheckBox::toggled, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_ShadowSize, &QComboBox::currentIndexChanged, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_ShadowColor, &KColorButton::changed, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_ShadowStrength, &QSlider::valueChanged, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_AnimationsEnabled, &QCheckBox::toggled, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_AnimationsDuration, &QSpinBox::valueChanged, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_BottomCorners, &QCheckBox::toggled, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_MenusFollowDecorationColors, &QCheckBox::toggled, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_SquareCornersTiled, &QCheckBox::toggled, this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_HideCaptionWhenLimitedSpace, &QCheckBox::toggled, this, &MaterialDecorationKCM::updateChanged);
+    connect(m_ui->kcfg_HamburgerMenu, &QCheckBox::toggled, this, &OxygenDecorationLimKCM::updateChanged);
+    connect(m_ui->kcfg_ShowDisabledActions, &QCheckBox::toggled, this, &OxygenDecorationLimKCM::updateChanged);
+    connect(m_ui->kcfg_SearchFuzzyMatching, &QCheckBox::toggled, this, &OxygenDecorationLimKCM::updateChanged);
+    connect(m_ui->kcfg_MenuButtonHorzPadding, &QSpinBox::valueChanged, this, &OxygenDecorationLimKCM::updateChanged);
+    connect(m_ui->kcfg_UseSystemMenuFont, &QCheckBox::toggled, this, &OxygenDecorationLimKCM::updateChanged);
+    connect(m_ui->kcfg_AnimationsEnabled, &QCheckBox::toggled, this, &OxygenDecorationLimKCM::updateChanged);
+    connect(m_ui->kcfg_AnimationsDuration, &QSpinBox::valueChanged, this, &OxygenDecorationLimKCM::updateChanged);
+    connect(m_ui->kcfg_HideCaptionWhenLimitedSpace, &QCheckBox::toggled, this, &OxygenDecorationLimKCM::updateChanged);
     connect(m_ui->kcfg_HideCaptionWhenLimitedSpace, &QCheckBox::toggled, m_ui->kcfg_MinWidthForCaption, &QWidget::setEnabled);
     connect(m_ui->kcfg_HideCaptionWhenLimitedSpace, &QCheckBox::toggled, m_ui->label_minWidthForCaption, &QWidget::setEnabled);
-    connect(m_ui->kcfg_MinWidthForCaption, qOverload<int>(&QSpinBox::valueChanged), this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_ShowCaptionOnHover, &QCheckBox::toggled, this, &MaterialDecorationKCM::updateChanged);
+    connect(m_ui->kcfg_MinWidthForCaption, qOverload<int>(&QSpinBox::valueChanged), this, &OxygenDecorationLimKCM::updateChanged);
+    connect(m_ui->kcfg_ShowCaptionOnHover, &QCheckBox::toggled, this, &OxygenDecorationLimKCM::updateChanged);
 
-    connect(m_ui->kcfg_TilingPopupHoverEnabled, &QCheckBox::toggled, this, &MaterialDecorationKCM::updateChanged);
+    connect(m_ui->kcfg_TilingPopupHoverEnabled, &QCheckBox::toggled, this, &OxygenDecorationLimKCM::updateChanged);
     connect(m_ui->kcfg_TilingPopupHoverEnabled, &QCheckBox::toggled, m_ui->kcfg_TilingPopupHoverDelay, &QWidget::setEnabled);
-    connect(m_ui->kcfg_TilingPopupHoverDelay, qOverload<int>(&QSpinBox::valueChanged), this, &MaterialDecorationKCM::updateChanged);
-    connect(m_ui->kcfg_LongPressEnabled, &QCheckBox::toggled, this, &MaterialDecorationKCM::updateChanged);
+    connect(m_ui->kcfg_TilingPopupHoverDelay, qOverload<int>(&QSpinBox::valueChanged), this, &OxygenDecorationLimKCM::updateChanged);
+    connect(m_ui->kcfg_LongPressEnabled, &QCheckBox::toggled, this, &OxygenDecorationLimKCM::updateChanged);
     connect(m_ui->kcfg_LongPressEnabled, &QCheckBox::toggled, m_ui->kcfg_LongPressDuration, &QWidget::setEnabled);
-    connect(m_ui->kcfg_LongPressDuration, qOverload<int>(&QSpinBox::valueChanged), this, &MaterialDecorationKCM::updateChanged);
+    connect(m_ui->kcfg_LongPressDuration, qOverload<int>(&QSpinBox::valueChanged), this, &OxygenDecorationLimKCM::updateChanged);
 
-    connect(m_ui->kcfg_DragFromButtonsEnabled, &QCheckBox::toggled, this, &MaterialDecorationKCM::updateChanged);
+    connect(m_ui->kcfg_DragFromButtonsEnabled, &QCheckBox::toggled, this, &OxygenDecorationLimKCM::updateChanged);
 
-    connect(m_ui->exceptionsWidget, &Material::ExceptionListWidget::changed, this, &MaterialDecorationKCM::updateChanged);
+    connect(m_ui->exceptionsWidget, &OxygenLim::ExceptionListWidget::changed, this, &OxygenDecorationLimKCM::updateChanged);
 }
 
-void MaterialDecorationKCM::load()
+void OxygenDecorationLimKCM::load()
 {
     m_settings->load();
     m_ui->exceptionsWidget->load();
@@ -149,20 +115,9 @@ void MaterialDecorationKCM::load()
     updateChanged();
 }
 
-void MaterialDecorationKCM::loadUIFromSettings(const Material::InternalSettings &settings)
+void OxygenDecorationLimKCM::loadUIFromSettings(const OxygenLim::InternalSettings &settings)
 {
     m_ui->kcfg_TitleAlignment->setCurrentIndex(settings.titleAlignment());
-    m_ui->kcfg_ButtonSize->setCurrentIndex(settings.buttonSize());
-    m_ui->kcfg_ActiveOpacity->setValue(qRound(settings.activeOpacity() * 100));
-    m_ui->kcfg_InactiveOpacity->setValue(qRound(settings.inactiveOpacity() * 100));
-    m_ui->kcfg_CornerRadius->setValue(settings.cornerRadius());
-    m_ui->kcfg_UseSystemColors->setChecked(settings.useSystemColors());
-    m_ui->kcfg_UseCustomBorderColors->setChecked(settings.useCustomBorderColors());
-    m_ui->kcfg_ActiveBorderColor->setColor(settings.activeBorderColor());
-    m_ui->kcfg_InactiveBorderColor->setColor(settings.inactiveBorderColor());
-    const bool useCustom = m_ui->kcfg_UseCustomBorderColors->isChecked();
-    m_ui->kcfg_ActiveBorderColor->setEnabled(useCustom);
-    m_ui->kcfg_InactiveBorderColor->setEnabled(useCustom);
     m_ui->kcfg_MenuAlwaysShow->setChecked(settings.menuAlwaysShow());
     m_ui->kcfg_ShowCaptionOnHover->setChecked(settings.showCaptionOnHover());
     m_ui->kcfg_ShowCaptionOnHover->setEnabled(settings.menuAlwaysShow());
@@ -178,15 +133,8 @@ void MaterialDecorationKCM::loadUIFromSettings(const Material::InternalSettings 
     m_ui->kcfg_SearchFuzzyMatching->setChecked(settings.searchFuzzyMatching());
     m_ui->kcfg_MenuButtonHorzPadding->setValue(settings.menuButtonHorzPadding());
     m_ui->kcfg_UseSystemMenuFont->setChecked(settings.useSystemMenuFont());
-    m_ui->kcfg_ShadowSize->setCurrentIndex(settings.shadowSize());
-    m_ui->kcfg_ShadowColor->setColor(settings.shadowColor());
-    m_ui->kcfg_ShadowStrength->setValue(settings.shadowStrength());
     m_ui->kcfg_AnimationsEnabled->setChecked(settings.animationsEnabled());
     m_ui->kcfg_AnimationsDuration->setValue(settings.animationsDuration());
-    m_ui->kcfg_BottomCorners->setChecked(settings.bottomCornerRadiusFlag());
-    m_ui->kcfg_SquareCornersTiled->setChecked(settings.squareCornersTiled());
-    m_ui->kcfg_MenusFollowDecorationColors->setChecked(settings.menusFollowDecorationColors());
-    m_ui->kcfg_OutlineActive->setChecked(settings.outlineActive());
     m_ui->kcfg_HideCaptionWhenLimitedSpace->setChecked(settings.hideCaptionWhenLimitedSpace());
     m_ui->kcfg_MinWidthForCaption->setValue(settings.minWidthForCaption());
     m_ui->kcfg_MinWidthForCaption->setEnabled(settings.hideCaptionWhenLimitedSpace());
@@ -202,24 +150,16 @@ void MaterialDecorationKCM::loadUIFromSettings(const Material::InternalSettings 
     m_ui->kcfg_DragFromButtonsEnabled->setChecked(settings.dragFromButtonsEnabled());
 }
 
-void MaterialDecorationKCM::updateUI()
+void OxygenDecorationLimKCM::updateUI()
 {
     loadUIFromSettings(*m_settings);
 }
 
-void MaterialDecorationKCM::save()
+void OxygenDecorationLimKCM::save()
 {
     m_ui->exceptionsWidget->save();
 
     m_settings->setTitleAlignment(m_ui->kcfg_TitleAlignment->currentIndex());
-    m_settings->setButtonSize(m_ui->kcfg_ButtonSize->currentIndex());
-    m_settings->setActiveOpacity(static_cast<double>(m_ui->kcfg_ActiveOpacity->value()) / 100.0);
-    m_settings->setInactiveOpacity(static_cast<double>(m_ui->kcfg_InactiveOpacity->value()) / 100.0);
-    m_settings->setCornerRadius(m_ui->kcfg_CornerRadius->value());
-    m_settings->setUseSystemColors(m_ui->kcfg_UseSystemColors->isChecked());
-    m_settings->setUseCustomBorderColors(m_ui->kcfg_UseCustomBorderColors->isChecked());
-    m_settings->setActiveBorderColor(m_ui->kcfg_ActiveBorderColor->color());
-    m_settings->setInactiveBorderColor(m_ui->kcfg_InactiveBorderColor->color());
     m_settings->setMenuAlwaysShow(m_ui->kcfg_MenuAlwaysShow->isChecked());
     m_settings->setShowCaptionOnHover(m_ui->kcfg_ShowCaptionOnHover->isChecked());
     m_settings->setSearchEnabled(m_ui->kcfg_SearchEnabled->isChecked());
@@ -230,15 +170,8 @@ void MaterialDecorationKCM::save()
     m_settings->setSearchFuzzyMatching(m_ui->kcfg_SearchFuzzyMatching->isChecked());
     m_settings->setMenuButtonHorzPadding(m_ui->kcfg_MenuButtonHorzPadding->value());
     m_settings->setUseSystemMenuFont(m_ui->kcfg_UseSystemMenuFont->isChecked());
-    m_settings->setShadowSize(m_ui->kcfg_ShadowSize->currentIndex());
-    m_settings->setShadowColor(m_ui->kcfg_ShadowColor->color());
-    m_settings->setShadowStrength(m_ui->kcfg_ShadowStrength->value());
     m_settings->setAnimationsEnabled(m_ui->kcfg_AnimationsEnabled->isChecked());
     m_settings->setAnimationsDuration(m_ui->kcfg_AnimationsDuration->value());
-    m_settings->setBottomCornerRadiusFlag(m_ui->kcfg_BottomCorners->isChecked());
-    m_settings->setSquareCornersTiled(m_ui->kcfg_SquareCornersTiled->isChecked());
-    m_settings->setMenusFollowDecorationColors(m_ui->kcfg_MenusFollowDecorationColors->isChecked());
-    m_settings->setOutlineActive(m_ui->kcfg_OutlineActive->isChecked());
     m_settings->setHideCaptionWhenLimitedSpace(m_ui->kcfg_HideCaptionWhenLimitedSpace->isChecked());
     m_settings->setMinWidthForCaption(m_ui->kcfg_MinWidthForCaption->value());
 
@@ -261,7 +194,7 @@ void MaterialDecorationKCM::save()
             this, [](QDBusPendingCallWatcher *finished) {
         const QDBusPendingReply<> reply = *finished;
         if (reply.isError()) {
-            qWarning() << "Material Decoration: failed to notify KWin to reconfigure:"
+            qWarning() << "oxygen-decoration-lim: failed to notify KWin to reconfigure:"
                        << reply.error().name()
                        << reply.error().message();
         }
@@ -270,11 +203,11 @@ void MaterialDecorationKCM::save()
     updateChanged();
 }
 
-void MaterialDecorationKCM::defaults()
+void OxygenDecorationLimKCM::defaults()
 {
     m_ui->exceptionsWidget->defaults();
 
-    Material::InternalSettings s;
+    OxygenLim::InternalSettings s;
     s.setDefaults();
 
     loadUIFromSettings(s);
@@ -282,17 +215,9 @@ void MaterialDecorationKCM::defaults()
     updateChanged();
 }
 
-bool MaterialDecorationKCM::isChanged() const
+bool OxygenDecorationLimKCM::isChanged() const
 {
     if (m_ui->kcfg_TitleAlignment->currentIndex() != m_settings->titleAlignment()) return true;
-    if (m_ui->kcfg_ButtonSize->currentIndex() != m_settings->buttonSize()) return true;
-    if (m_ui->kcfg_ActiveOpacity->value() != qRound(m_settings->activeOpacity() * 100)) return true;
-    if (m_ui->kcfg_InactiveOpacity->value() != qRound(m_settings->inactiveOpacity() * 100)) return true;
-    if (m_ui->kcfg_CornerRadius->value() != m_settings->cornerRadius()) return true;
-    if (m_ui->kcfg_UseSystemColors->isChecked() != m_settings->useSystemColors()) return true;
-    if (m_ui->kcfg_UseCustomBorderColors->isChecked() != m_settings->useCustomBorderColors()) return true;
-    if (m_ui->kcfg_ActiveBorderColor->color() != m_settings->activeBorderColor()) return true;
-    if (m_ui->kcfg_InactiveBorderColor->color() != m_settings->inactiveBorderColor()) return true;
     if (m_ui->kcfg_MenuAlwaysShow->isChecked() != m_settings->menuAlwaysShow()) return true;
     if (m_ui->kcfg_ShowCaptionOnHover->isChecked() != m_settings->showCaptionOnHover()) return true;
     if (m_ui->kcfg_SearchEnabled->isChecked() != m_settings->searchEnabled()) return true;
@@ -303,15 +228,8 @@ bool MaterialDecorationKCM::isChanged() const
     if (m_ui->kcfg_SearchFuzzyMatching->isChecked() != m_settings->searchFuzzyMatching()) return true;
     if (m_ui->kcfg_MenuButtonHorzPadding->value() != m_settings->menuButtonHorzPadding()) return true;
     if (m_ui->kcfg_UseSystemMenuFont->isChecked() != m_settings->useSystemMenuFont()) return true;
-    if (m_ui->kcfg_ShadowSize->currentIndex() != m_settings->shadowSize()) return true;
-    if (m_ui->kcfg_ShadowColor->color() != m_settings->shadowColor()) return true;
-    if (m_ui->kcfg_ShadowStrength->value() != m_settings->shadowStrength()) return true;
     if (m_ui->kcfg_AnimationsEnabled->isChecked() != m_settings->animationsEnabled()) return true;
     if (m_ui->kcfg_AnimationsDuration->value() != m_settings->animationsDuration()) return true;
-    if (m_ui->kcfg_BottomCorners->isChecked() != m_settings->bottomCornerRadiusFlag()) return true;
-    if (m_ui->kcfg_SquareCornersTiled->isChecked() != m_settings->squareCornersTiled()) return true;
-    if (m_ui->kcfg_MenusFollowDecorationColors->isChecked() != m_settings->menusFollowDecorationColors()) return true;
-    if (m_ui->kcfg_OutlineActive->isChecked() != m_settings->outlineActive()) return true;
     if (m_ui->kcfg_HideCaptionWhenLimitedSpace->isChecked() != m_settings->hideCaptionWhenLimitedSpace()) return true;
     if (m_ui->kcfg_MinWidthForCaption->value() != m_settings->minWidthForCaption()) return true;
     if (m_ui->kcfg_TilingPopupHoverEnabled->isChecked() != m_settings->tilingPopupHoverEnabled()) return true;
@@ -325,7 +243,7 @@ bool MaterialDecorationKCM::isChanged() const
     return false;
 }
 
-void MaterialDecorationKCM::updateChanged()
+void OxygenDecorationLimKCM::updateChanged()
 {
     setNeedsSave(isChanged());
 }

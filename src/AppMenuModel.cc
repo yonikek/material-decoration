@@ -45,7 +45,7 @@
 //std
 #include <utility>
 
-namespace Material
+namespace OxygenLim
 {
 
 namespace {
@@ -373,4 +373,4 @@ void AppMenuModel::processNext()
 }
 
 
-} // namespace Material
+} // namespace OxygenLim

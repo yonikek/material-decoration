@@ -23,10 +23,10 @@
 #include <KPluginFactory>
 
 K_PLUGIN_FACTORY_WITH_JSON(
-    MaterialDecorationFactory,
-    "material.json",
-    registerPlugin<Material::Decoration>();
-    registerPlugin<Material::Button>();
+    OxygenDecorationLimFactory,
+    "oxygendecorationlim.json",
+    registerPlugin<OxygenLim::Decoration>();
+    registerPlugin<OxygenLim::Button>();
 );
 
 #include "plugin.moc"

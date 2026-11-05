@@ -26,7 +26,7 @@
 #include <QPainter>
 
 
-namespace Material
+namespace OxygenLim
 {
 
 MenuOverflowButton::MenuOverflowButton(Decoration *decoration, const int buttonIndex, QObject *parent)
@@ -46,4 +46,4 @@ void MenuOverflowButton::paintIcon(QPainter *painter, const QRectF &iconRect, co
     ApplicationMenuButton::paintIcon(this, painter, iconRect, snapper);
 }
 
-} // namespace Material
+} // namespace OxygenLim

@@ -26,7 +26,7 @@
 // Qt
 #include <QPainter>
 
-namespace Material
+namespace OxygenLim
 {
 
 class MaximizeButton
@@ -124,4 +124,4 @@ public:
     }
 };
 
-} // namespace Material
+} // namespace OxygenLim

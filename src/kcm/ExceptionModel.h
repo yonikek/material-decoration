@@ -21,7 +21,7 @@
 
 #include <QAbstractListModel>
 
-namespace Material
+namespace OxygenLim
 {
 
 class ExceptionModel : public QAbstractListModel
@@ -51,4 +51,4 @@ private:
     InternalSettingsList m_exceptions;
 };
 
-} // namespace Material
+} // namespace OxygenLim

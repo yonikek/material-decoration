@@ -20,7 +20,7 @@
 #include <QUuid>
 #include <QVariantMap>
 
-namespace Material
+namespace OxygenLim
 {
 namespace
 {
@@ -36,15 +36,15 @@ QUuid windowId(QObject *decoration)
 class TilingBridge : public QObject, protected QDBusContext
 {
     Q_OBJECT
-    Q_CLASSINFO("D-Bus Interface", "com.github.guiodic.MaterialTiling")
+    Q_CLASSINFO("D-Bus Interface", "org.oxygendecorationlim.Tiling")
 public:
     explicit TilingBridge(QObject *parent) : QObject(parent)
     {
         auto bus = QDBusConnection::sessionBus();
-        m_registered = bus.registerService(QStringLiteral("com.github.guiodic.MaterialTiling"));
+        m_registered = bus.registerService(QStringLiteral("org.oxygendecorationlim.Tiling"));
         if (m_registered) {
             m_registered = bus.registerObject(QStringLiteral("/Tiling"), this, QDBusConnection::ExportAllSlots);
-            if (!m_registered) bus.unregisterService(QStringLiteral("com.github.guiodic.MaterialTiling"));
+            if (!m_registered) bus.unregisterService(QStringLiteral("org.oxygendecorationlim.Tiling"));
         }
         m_timeout.setSingleShot(true);
         m_timeout.setInterval(2000);
@@ -111,7 +111,7 @@ private:
         m_timeout.start();
         auto message = QDBusMessage::createMethodCall(QStringLiteral("org.kde.kglobalaccel"), QStringLiteral("/component/kwin"),
                                                       QStringLiteral("org.kde.kglobalaccel.Component"), QStringLiteral("invokeShortcut"));
-        message << QStringLiteral("MaterialTilingPopupDispatch");
+        message << QStringLiteral("OxygenLimTilingPopupDispatch");
         const QString id = m_pending.head().data.value(QStringLiteral("id")).toString();
         auto *watcher = new QDBusPendingCallWatcher(QDBusConnection::sessionBus().asyncCall(message, 1500), this);
         connect(watcher, &QDBusPendingCallWatcher::finished, this, [this, id](QDBusPendingCallWatcher *call) {
@@ -129,7 +129,7 @@ private:
         m_timeout.stop();
         m_inFlight = false;
         auto request = m_pending.dequeue();
-        if (!success) qWarning() << "Material tiling:" << reason;
+        if (!success) qWarning() << "oxygen-decoration-lim tiling:" << reason;
         if (request.context && request.callback) {
             QTimer::singleShot(0, request.context, [callback = std::move(request.callback), success, layout] { callback(success, layout); });
         }

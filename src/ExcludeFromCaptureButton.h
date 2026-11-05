@@ -21,7 +21,7 @@
 #include "BuildConfig.h"
 #include "Button.h"
 #include "Decoration.h"
-#include "Material.h"
+#include "OxygenLim.h"
 
 // KDecoration
 #include <KDecoration3/DecoratedWindow>
@@ -31,7 +31,7 @@
 #include <QPainter>
 #include <QVector>
 
-namespace Material
+namespace OxygenLim
 {
 
 #if HAVE_EXCLUDE_FROM_CAPTURE
@@ -89,4 +89,4 @@ public:
 };
 #endif
 
-} // namespace Material
+} // namespace OxygenLim

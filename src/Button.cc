@@ -21,9 +21,10 @@
 #include "BuildConfig.h"
 #include "Button.h"
 #include "DrawHelper.h"
+#include "OxygenHelper.h"
 #include "LongPressAction.h"
 #include "TilingController.h"
-#include "Material.h"
+#include "OxygenLim.h"
 #include "Decoration.h"
 
 #include "AppIconButton.h"
@@ -42,6 +43,8 @@
 #endif
 
 #include "TextButton.h"
+#include "AppMenuButton.h"
+#include "AppMenuButtonGroup.h"
 
 // KDecoration
 #include <KDecoration3/DecoratedWindow>
@@ -58,7 +61,9 @@
 #include <QDebug>
 #include <QHoverEvent>
 #include <QMouseEvent>
+#include <QLinearGradient>
 #include <QPainter>
+#include <QPixmap>
 #include <QVariantAnimation>
 #include <QTimer>
 #include <QDBusConnection>
@@ -73,7 +78,7 @@
 #define UPDATE_GEOM() update(geometry().adjusted(-1, -1, 1, 1))
 
 
-namespace Material
+namespace OxygenLim
 {
 
 namespace
@@ -112,7 +117,7 @@ Button::Button(KDecoration3::DecorationButtonType type, Decoration *decoration, 
 
 
     if (QCoreApplication::applicationName() == QStringLiteral("kded6")) {
-        // See: https://github.com/Zren/material-decoration/issues/22
+        // See: https://github.com/Zren/oxygen-decoration-lim/issues/22
         // kde-gtk-config has a kded module which renders the buttons to svgs for gtk.
         m_isGtkButton = true;
     }
@@ -237,7 +242,7 @@ Button::Button(KDecoration3::DecorationButtonType type, Decoration *decoration, 
     
     
 
-    setHeight(decoration->titleBarHeight());
+    setHeight(decoration->captionHeight());
 
     auto *decoratedClient = decoration->window();
 
@@ -377,28 +382,79 @@ void Button::mouseReleaseEvent(QMouseEvent *event)
 void Button::paint(QPainter *painter, const QRectF &repaintRegion)
 {
     Q_UNUSED(repaintRegion)
-    
-    const auto *deco = qobject_cast<Decoration *>(this->decoration());
-       
-    if (!deco) {
-        return;
-    }    
-    
-    painter->save();
 
-    // Opacity
+    auto *deco = qobject_cast<Decoration *>(this->decoration());
+    if (!deco || type() == KDecoration3::DecorationButtonType::Spacer) {
+        return;
+    }
+
+    painter->save();
     painter->setOpacity(m_opacity);
 
-    // Background
-    const QColor bgColor = backgroundColor();
-    painter->setRenderHints(QPainter::Antialiasing, m_isRightmost || m_isLeftmost);
-    painter->setPen(Qt::NoPen);
-    painter->setBrush(bgColor);
-    const qreal radius = deco->cornerRadius();
+    if (qobject_cast<AppMenuButton *>(this)) {
+        paintMenuButton(painter, deco);
+    } else if (type() == KDecoration3::DecorationButtonType::Menu) {
+        // application icon, drawn at the size of the Oxygen buttons
+        const qreal size = deco->buttonHeight();
+        const QRectF iconRect(geometry().left(), geometry().top() + slabYOffset(deco), size, size);
+        deco->window()->icon().paint(painter, iconRect.toRect());
+    } else {
+        paintOxygenButton(painter, deco);
+    }
 
-    painter->drawPath(DrawHelper::getRoundedPath(
-        geometry(), radius - Material::cornerRadiusAdjustment,
-        m_isLeftmost && deco->leftBorderVisible(), m_isRightmost && deco->rightBorderVisible(), false, false));
+    painter->restore();
+}
+
+qreal Button::slabYOffset(const Decoration *deco) const
+{
+    // Same as the Oxygen vertical offset: window buttons of maximized windows
+    // are taller (to reach the screen edge) and their slab is centered in the
+    // caption row.
+    return (deco->isMaximized() ? deco->rowTop() : 0) + (deco->captionHeight() - deco->buttonHeight()) / 2.0;
+}
+
+bool Button::isToggleButton() const
+{
+    switch (type()) {
+    case KDecoration3::DecorationButtonType::OnAllDesktops:
+    case KDecoration3::DecorationButtonType::KeepAbove:
+    case KDecoration3::DecorationButtonType::KeepBelow:
+#if HAVE_EXCLUDE_FROM_CAPTURE
+    case KDecoration3::DecorationButtonType::ExcludeFromCapture:
+#endif
+        return true;
+    default:
+        return false;
+    }
+}
+
+void Button::paintMenuButton(QPainter *painter, Decoration *deco)
+{
+    auto *helper = OxygenHelper::self();
+    const auto *menuButton = qobject_cast<AppMenuButton *>(this);
+    const auto *group = qobject_cast<AppMenuButtonGroup *>(parent());
+    const bool otherMenuOpen = group && menuButton && group->isMenuOpen() && group->currentIndex() != menuButton->buttonIndex();
+
+    // Oxygen-like slab behind hovered, pressed and opened menu entries
+    const bool sunken = isChecked() || isPressed();
+    const qreal strength = otherMenuOpen ? 0.0 : (sunken ? 1.0 : (isVisuallyHovered() ? m_transitionValue : 0.0));
+    if (strength > 0.0) {
+        const QColor base = deco->titleBarBackgroundColor();
+        const QColor light = helper->calcLightColor(base);
+        const QColor dark = helper->calcDarkColor(base);
+        const QRectF slab = geometry().adjusted(0.5, 1.5, -0.5, -1.5);
+
+        QLinearGradient gradient(slab.topLeft(), slab.bottomLeft());
+        gradient.setColorAt(0.0, OxygenHelper::alphaColor(sunken ? dark : light, strength));
+        gradient.setColorAt(1.0, OxygenHelper::alphaColor(sunken ? light : dark, strength));
+
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing, true);
+        painter->setPen(QPen(OxygenHelper::alphaColor(dark, strength * 0.7), 1));
+        painter->setBrush(gradient);
+        painter->drawRoundedRect(slab, 3.5, 3.5);
+        painter->restore();
+    }
 
     // Foreground.
     painter->setRenderHint(QPainter::Antialiasing, true);
@@ -408,101 +464,194 @@ void Button::paint(QPainter *painter, const QRectF &repaintRegion)
 
     PixelSnapper snapper(painter);
 
-    // TextButton and AppIconButton are special, so we don't scale the painter
+    // TextButton is special, so we don't scale the painter
     if (auto textButton = qobject_cast<TextButton*>(this)) {
         textButton->paintIcon(painter, contentRect, snapper);
-    } else if (type() == KDecoration3::DecorationButtonType::Menu) {
-        AppIconButton::paintIcon(this, painter, contentRect, snapper);
-    } else {
-        // All further rendering is performed inside a 18x18 square
-        const qreal width = contentRect.width();
-        const qreal height = contentRect.height();
+        return;
+    }
 
-        //Calculate scale for button icons
-        qreal size;
-        if (m_isGtkButton) {
-            // See: https://github.com/Zren/material-decoration/issues/22
-            // kde-gtk-config has a kded5 module which renders the buttons to svgs for gtk.
+    // All further rendering is performed inside a 18x18 square
+    const qreal size = qMin(contentRect.width(), contentRect.height()) * 0.6;
 
-            // The svgs are 50x50, located at ~/.config/gtk-3.0/assets/
-            // They are usually scaled down to just 18x18 when drawn in gtk headerbars.
-            // The Gtk theme already has a fairly large amount of padding, as
-            // the Breeze theme doesn't currently follow fitt's law. So use different
-            // scale so that the icon is not a very tiny 8px.
-            size = qMin(width, height) * 1.15; // 115% for GTK
-            painter->setRenderHint(QPainter::Antialiasing, false); //do not antialias gtk buttons, gtk will aliases them
+    // For a sharper image, we use physical-pixel-aligned positioning and scaling
+    const qreal localToPhysicalScale = snapper.localToPhysicalScale();
+    const qreal physicalIconSize = (localToPhysicalScale > 0.0) ? qRound(size * localToPhysicalScale) : qRound(size * snapper.dpr());
+    const qreal iconLogicalSize = (localToPhysicalScale > 0.0) ? (physicalIconSize / localToPhysicalScale) : (physicalIconSize / snapper.dpr());
+
+    // Translate to a center aligned with physical pixel grid
+    painter->translate(snapper.snap(contentRect.center()));
+
+    // Scale by physical-aligned factor
+    painter->scale(iconLogicalSize / 18.0, iconLogicalSize / 18.0);
+
+    // default pen width, not snapped
+    m_penScale = 1.5;
+    setPenWidth(painter, m_penScale, false);
+
+    PixelSnapper iconSnapper(painter);
+    paintIcon(painter, QRectF(-9, -9, 18, 18), iconSnapper);
+}
+
+void Button::paintOxygenButton(QPainter *painter, Decoration *deco)
+{
+    auto *helper = OxygenHelper::self();
+    const auto *client = deco->window();
+    const bool active = client->isActive();
+
+    QPalette palette(client->palette());
+    palette.setCurrentColorGroup(active ? QPalette::Active : QPalette::Inactive);
+
+    const int size = deco->buttonHeight();
+    const QPointF origin(geometry().left(), geometry().top() + slabYOffset(deco));
+
+    // base button color and text color
+    const QColor base = palette.color(active ? QPalette::Active : QPalette::Inactive, QPalette::Button);
+    QColor color = palette.color(active ? QPalette::Active : QPalette::Disabled, QPalette::ButtonText);
+
+    // decide decoration color
+    QColor glow;
+    const bool hovered = isVisuallyHovered();
+    const bool checkedToggle = isToggleButton() && isChecked();
+    const bool animated = m_animation->state() == QAbstractAnimation::Running;
+    const qreal glowIntensity = m_transitionValue;
+    if (animated || hovered || checkedToggle) {
+        const QColor toggleColor = helper->focusColor(palette);
+        const QColor toggledHoverGlow = palette.color(QPalette::Disabled, QPalette::ButtonText);
+        const QColor toggledHoverColor = KColorUtils::mix(toggledHoverGlow, color, 0.6);
+
+        if (type() == KDecoration3::DecorationButtonType::Close) {
+            glow = helper->negativeTextColor(palette);
+        } else if (hovered && checkedToggle) {
+            glow = toggledHoverGlow;
+        } else if (checkedToggle) {
+            glow = toggleColor;
         } else {
-            size = qMin(width, height) * 0.6; // 60% of the Kwin Deco
+            glow = helper->hoverColor(palette);
         }
 
-        // For a sharper image, we use physical-pixel-aligned positioning and scaling
-        const qreal localToPhysicalScale = snapper.localToPhysicalScale();
-        const qreal physicalIconSize = (localToPhysicalScale > 0.0) ? qRound(size * localToPhysicalScale) : qRound(size * snapper.dpr());
-        const qreal iconLogicalSize = (localToPhysicalScale > 0.0) ? (physicalIconSize / localToPhysicalScale) : (physicalIconSize / snapper.dpr());
+        if (animated) {
+            if (checkedToggle) {
+                color = KColorUtils::mix(toggleColor, toggledHoverColor, glowIntensity);
+                glow = KColorUtils::mix(toggleColor, toggledHoverGlow, glowIntensity);
+            } else {
+                color = KColorUtils::mix(color, glow, glowIntensity);
+                glow = OxygenHelper::alphaColor(glow, glowIntensity);
+            }
+        } else if (hovered != checkedToggle) {
+            color = glow; // hovered xor checked: the glow colour is also the symbol colour
+        } else if (checkedToggle) {
+            color = toggledHoverColor; // checked and hovered
+        }
+    }
 
-        // Translate to a center aligned with physical pixel grid
-        const QPointF center = contentRect.center();
-        const QPointF centerSnapped = snapper.snap(center);
-        painter->translate(centerSnapped);
+    // draw button shape
+    const bool sunken = isPressed() || checkedToggle;
+    const qreal dpr = painter->device()->devicePixelRatioF();
+    const int physicalSize = qRound(size * dpr);
+    QPixmap buttonPixmap = helper->windecoButton(base, glow, sunken, size, physicalSize);
+    buttonPixmap.setDevicePixelRatio(dpr);
+    painter->drawPixmap(origin, buttonPixmap);
 
-                
-        // Scale by physical-aligned factor
-        painter->scale(iconLogicalSize / 18.0, iconLogicalSize / 18.0);
-        
-        // default pen width, not snapped
-        m_penScale = 1.5;
-        setPenWidth(painter, m_penScale, false);       
-        
-        PixelSnapper iconSnapper(painter);
+    // Icon
+    painter->setRenderHints(QPainter::Antialiasing);
+    painter->translate(origin);
 
-        // Icons
-        const QRectF iconRect(-9, -9, 18, 18);
-        switch (type()) {
-        // NOTE: Menu and ApplicationMenu are handled above
-        case KDecoration3::DecorationButtonType::OnAllDesktops:
-            OnAllDesktopsButton::paintIcon(this, painter, iconRect, iconSnapper);
-            break;
+    const qreal width = 1.2;
 
-        case KDecoration3::DecorationButtonType::ContextHelp:
-            ContextHelpButton::paintIcon(this, painter, iconRect, iconSnapper);
-            break;
+    // contrast
+    painter->setBrush(Qt::NoBrush);
+    painter->translate(0, 1.5);
+    painter->setPen(QPen(helper->calcLightColor(base), width, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    drawOxygenIcon(painter, size, deco);
 
-        case KDecoration3::DecorationButtonType::Shade:
-            ShadeButton::paintIcon(this, painter, iconRect, iconSnapper);
-            break;
+    // main
+    painter->translate(0, -1.5);
+    painter->setPen(QPen(color, width, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    drawOxygenIcon(painter, size, deco);
+}
 
-        case KDecoration3::DecorationButtonType::KeepAbove:
-            KeepAboveButton::paintIcon(this, painter, iconRect, iconSnapper);
-            break;
+void Button::drawOxygenIcon(QPainter *painter, qreal width, Decoration *deco)
+{
+    painter->save();
 
-        case KDecoration3::DecorationButtonType::KeepBelow:
-            KeepBelowButton::paintIcon(this, painter, iconRect, iconSnapper);
-            break;
+    // keep all co-ordinates between 0 and 21
+    painter->scale(width / 21, width / 21);
 
-        case KDecoration3::DecorationButtonType::Close:
-            CloseButton::paintIcon(this, painter, iconRect, iconSnapper);
-            break;
+    // make sure pen width is always larger than 1.1 in "real" coordinates
+    QPen pen(painter->pen());
+    pen.setWidthF(qMax(1.1 * 21 / width, pen.widthF()));
+    painter->setPen(pen);
 
-        case KDecoration3::DecorationButtonType::Maximize:
-            MaximizeButton::paintIcon(this, painter, iconRect, iconSnapper);
-            break;
+    switch (type()) {
+    case KDecoration3::DecorationButtonType::OnAllDesktops:
+        painter->drawPoint(QPointF(10.5, 10.5));
+        break;
 
-        case KDecoration3::DecorationButtonType::Minimize:
-            MinimizeButton::paintIcon(this, painter, iconRect, iconSnapper);
-            break;
-        case KDecoration3::DecorationButtonType::Spacer:  
-            break;            
+    case KDecoration3::DecorationButtonType::ContextHelp:
+        painter->translate(1.5, 1.5);
+        painter->drawArc(7, 5, 4, 4, 135 * 16, -180 * 16);
+        painter->drawArc(9, 8, 4, 4, 135 * 16, 45 * 16);
+        painter->drawPoint(9, 12);
+        painter->translate(-1.5, -1.5);
+        break;
+
+    case KDecoration3::DecorationButtonType::Minimize:
+        painter->drawPolyline(QPolygonF() << QPointF(7.5, 9.5) << QPointF(10.5, 12.5) << QPointF(13.5, 9.5));
+        break;
+
+    case KDecoration3::DecorationButtonType::Maximize:
+        if (deco->window()->isMaximized()) {
+            painter->drawPolygon(QPolygonF() << QPointF(7.5, 10.5) << QPointF(10.5, 7.5) << QPointF(13.5, 10.5) << QPointF(10.5, 13.5));
+        } else {
+            painter->drawPolyline(QPolygonF() << QPointF(7.5, 11.5) << QPointF(10.5, 8.5) << QPointF(13.5, 11.5));
+        }
+        break;
+
+    case KDecoration3::DecorationButtonType::Close:
+        painter->drawLine(QPointF(7.5, 7.5), QPointF(13.5, 13.5));
+        painter->drawLine(QPointF(13.5, 7.5), QPointF(7.5, 13.5));
+        break;
+
+    case KDecoration3::DecorationButtonType::KeepAbove:
+        painter->drawPolyline(QPolygonF() << QPointF(7.5, 14) << QPointF(10.5, 11) << QPointF(13.5, 14));
+        painter->drawPolyline(QPolygonF() << QPointF(7.5, 10) << QPointF(10.5, 7) << QPointF(13.5, 10));
+        break;
+
+    case KDecoration3::DecorationButtonType::KeepBelow:
+        painter->drawPolyline(QPolygonF() << QPointF(7.5, 11) << QPointF(10.5, 14) << QPointF(13.5, 11));
+        painter->drawPolyline(QPolygonF() << QPointF(7.5, 7) << QPointF(10.5, 10) << QPointF(13.5, 7));
+        break;
 
 #if HAVE_EXCLUDE_FROM_CAPTURE
-        case KDecoration3::DecorationButtonType::ExcludeFromCapture:
-            ExcludeFromCaptureButton::paintIcon(this, painter, iconRect, iconSnapper);
-            break;
+    case KDecoration3::DecorationButtonType::ExcludeFromCapture:
+        painter->drawPolyline(QPolygonF() << QPointF(7.5, 9) << QPointF(7.5, 7.5) << QPointF(9, 7.5));
+        painter->drawPolyline(QPolygonF() << QPointF(12, 13.5) << QPointF(13.5, 13.5) << QPointF(13.5, 12));
+
+        if (!isChecked()) {
+            painter->drawPolyline(QPolygonF() << QPointF(12, 7.5) << QPointF(13.5, 7.5) << QPointF(13.5, 9));
+            painter->drawPolyline(QPolygonF() << QPointF(7.5, 12) << QPointF(7.5, 13.5) << QPointF(9, 13.5));
+        } else {
+            QPen redPen(painter->pen());
+            redPen.setColor(OxygenHelper::self()->negativeTextColor(deco->window()->palette()));
+            redPen.setWidthF(0.8);
+            painter->setPen(redPen);
+            painter->drawLine(QPointF(7.5, 13.5), QPointF(13.5, 7.5));
+        }
+        break;
 #endif
 
-        default:
-            paintIcon(painter, iconRect, iconSnapper);
-            break;
+    case KDecoration3::DecorationButtonType::Shade:
+        if (!isChecked()) {
+            painter->drawPolyline(QPolygonF() << QPointF(7.5, 7.5) << QPointF(10.5, 10.5) << QPointF(13.5, 7.5));
+            painter->drawLine(QPointF(7.5, 13.0), QPointF(13.5, 13.0));
+        } else {
+            painter->drawPolyline(QPolygonF() << QPointF(7.5, 10.5) << QPointF(10.5, 7.5) << QPointF(13.5, 10.5));
+            painter->drawLine(QPointF(7.5, 13.0), QPointF(13.5, 13.0));
         }
+        break;
+
+    default:
+        break;
     }
 
     painter->restore();
@@ -526,6 +675,14 @@ void Button::updateSize(qreal contentWidth, qreal contentHeight)
 
 void Button::setHeight(qreal buttonHeight)
 {
+    if (!qobject_cast<AppMenuButton *>(this)) {
+        // Oxygen window buttons are round slabs of a fixed size
+        const auto *deco = qobject_cast<Decoration *>(decoration());
+        if (deco) {
+            updateSize(deco->buttonHeight(), buttonHeight);
+            return;
+        }
+    }
     // For simplicity, don't count the 1.x:1 scaling in the left/right padding.
     // The left/right padding is mainly for the border offset alignment.
     updateSize(buttonHeight * 1.1, buttonHeight);
@@ -560,101 +717,8 @@ QColor Button::backgroundColor() const
     if (!deco) {
         return {};
     }
-
-    if (m_isGtkButton) {
-        // Breeze GTK has huge margins around the button. It looks better
-        // when we just change the fgColor on hover instead of the bgColor.
-        return Qt::transparent;
-    }
-
-    const QColor titleBarBg = deco->titleBarBackgroundColor();
-    const QColor titleBarFg = deco->titleBarForegroundColor();
-
-    //--- CloseButton
-    if (type() == KDecoration3::DecorationButtonType::Close) {
-        auto *decoratedClient = deco->window();
-        QColor hoveredColor = decoratedClient->color(
-            KDecoration3::ColorGroup::Warning,
-            KDecoration3::ColorRole::Foreground
-        );
-        QColor normalColor = hoveredColor;
-        normalColor.setAlphaF(0);
-
-        if (isPressed()) {
-            if (qFuzzyCompare(m_transitionValue, 0.0)) return normalColor;
-            const QColor pressedColor = decoratedClient->color(
-                KDecoration3::ColorGroup::Warning,
-                KDecoration3::ColorRole::Foreground
-            ).lighter();
-            if (qFuzzyCompare(m_transitionValue, 1.0)) return pressedColor;
-            return KColorUtils::mix(normalColor, pressedColor, m_transitionValue);
-        }
-
-        if (isVisuallyHovered()) {
-            if (qFuzzyCompare(m_transitionValue, 0.0)) return normalColor;
-            if (!decoratedClient->isActive()) {  
-                hoveredColor = KColorUtils::mix(titleBarBg, hoveredColor,0.7);
-            }    
-            if (qFuzzyCompare(m_transitionValue, 1.0)) return hoveredColor;
-            return KColorUtils::mix(normalColor, hoveredColor, m_transitionValue); 
-        }
-    }
-
-#if HAVE_EXCLUDE_FROM_CAPTURE
-    //--- ExcludeFromCapture
-    if (type() == KDecoration3::DecorationButtonType::ExcludeFromCapture && isChecked()) {
-        auto *decoratedClient = deco->window();
-        return decoratedClient->color(
-            KDecoration3::ColorGroup::Warning,
-            KDecoration3::ColorRole::Foreground
-        );
-    }
-#endif
-
-    //--- Checked
-    if (isChecked() && type() != KDecoration3::DecorationButtonType::Maximize) {
-        const QColor normalColor = titleBarFg;
-
-        if (isPressed()) {
-            const QColor pressedColor = KColorUtils::mix(
-                titleBarBg,
-                titleBarFg,
-                0.7);
-            return KColorUtils::mix(normalColor, pressedColor, m_transitionValue);
-        }
-        if (isVisuallyHovered()) {
-            const QColor hoveredColor = KColorUtils::mix(
-                titleBarBg,
-                titleBarFg,
-                0.8);
-            return KColorUtils::mix(normalColor, hoveredColor, m_transitionValue);
-        }
-        return normalColor;
-    }
-
-    //--- Normal
-    const QColor hoveredColor = KColorUtils::mix(
-        titleBarBg,
-        titleBarFg,
-        0.2);
-    QColor normalColor = QColor(hoveredColor);
-    normalColor.setAlphaF(0);
-
-    if (isPressed()) {
-        if (qFuzzyCompare(m_transitionValue, 0.0)) return normalColor;
-        const QColor pressedColor = KColorUtils::mix(
-            titleBarBg,
-            titleBarFg,
-            0.3);
-        if (qFuzzyCompare(m_transitionValue, 1.0)) return pressedColor;
-        return KColorUtils::mix(normalColor, pressedColor, m_transitionValue);
-    }
-    if (isVisuallyHovered()) {
-        if (qFuzzyCompare(m_transitionValue, 0.0)) return normalColor;
-        if (qFuzzyCompare(m_transitionValue, 1.0)) return hoveredColor;
-        return KColorUtils::mix(normalColor, hoveredColor, m_transitionValue);
-    }
-    return normalColor;
+    const bool active = deco->window()->isActive();
+    return deco->window()->palette().color(active ? QPalette::Active : QPalette::Inactive, QPalette::Button);
 }
 
 QColor Button::foregroundColor() const
@@ -663,75 +727,8 @@ QColor Button::foregroundColor() const
     if (!deco) {
         return {};
     }
-
-    const QColor titleBarBg = deco->titleBarBackgroundColor();
-    const QColor titleBarOpaqueBg = deco->titleBarOpaqueBackgroundColor();
-    const QColor titleBarFg = deco->titleBarForegroundColor();
-    const bool isBgDark = qGray(titleBarBg.rgb()) < 128;
-
-    //--- Checked
-    if (isChecked() && type() != KDecoration3::DecorationButtonType::Maximize) {
-#if HAVE_EXCLUDE_FROM_CAPTURE
-        if (type() == KDecoration3::DecorationButtonType::ExcludeFromCapture) {
-            return isBgDark ? titleBarFg : titleBarOpaqueBg;
-        }
-#endif
-
-        const QColor activeColor = KColorUtils::mix(
-            titleBarOpaqueBg,
-            titleBarFg,
-            0.2);
-
-        if (isPressed() || isVisuallyHovered()) {
-            if (qFuzzyCompare(m_transitionValue, 0.0)) return activeColor;
-            if (qFuzzyCompare(m_transitionValue, 1.0)) return titleBarOpaqueBg;
-            return KColorUtils::mix(
-                activeColor,
-                titleBarOpaqueBg,
-                m_transitionValue);
-        }
-        return activeColor;
-    }
-
-    //--- Normal
-    const QColor normalColor = KColorUtils::mix(
-        titleBarBg,
-        titleBarFg,
-        0.8);
-
-    if (isPressed() || isVisuallyHovered()) {
-        if (qFuzzyCompare(m_transitionValue, 0.0)) return normalColor;
-        // Breeze GTK has huge margins around the button. It looks better
-        // when we just change the fgColor on hover instead of the bgColor.
-        QColor hoveredColor;
-        auto *decoratedClient = deco->window();
-        if (m_isGtkButton && type() == KDecoration3::DecorationButtonType::Close) {
-            hoveredColor = decoratedClient->color(
-                KDecoration3::ColorGroup::Warning,
-                KDecoration3::ColorRole::Foreground
-            );
-        } else if (m_isGtkButton && (type() == KDecoration3::DecorationButtonType::Maximize || type() == KDecoration3::DecorationButtonType::Minimize)) {
-            if (isBgDark) { // Dark Bg
-                hoveredColor = KColorUtils::mix(titleBarFg, Qt::black, 0.5); 
-            } else { // Light Bg
-                hoveredColor = KColorUtils::mix(titleBarFg, Qt::white, 0.6); 
-            }
-        } else {
-            if (type() == KDecoration3::DecorationButtonType::Close && !(decoratedClient->isActive() && isBgDark)) {
-                hoveredColor = titleBarBg;
-            } else {
-                hoveredColor = titleBarFg;
-            }
-        }
-
-        if (qFuzzyCompare(m_transitionValue, 1.0)) return hoveredColor;
-        return KColorUtils::mix(
-            normalColor,
-            hoveredColor,
-            m_transitionValue);
-    }
-
-    return normalColor;
+    const bool active = deco->window()->isActive();
+    return deco->window()->palette().color(active ? QPalette::Active : QPalette::Disabled, QPalette::ButtonText);
 }
 
 
@@ -926,13 +923,13 @@ void Button::refreshLongPressToolTip()
         if (available && deco->m_internalSettings->longPressEnabled()) {
             switch (type()) {
             case KDecoration3::DecorationButtonType::Minimize:
-                text += QLatin1Char('\n') + i18nd("materialdecoration", "Press and hold to minimize other windows");
+                text += QLatin1Char('\n') + i18nd("oxygendecorationlim", "Press and hold to minimize other windows");
                 break;
             case KDecoration3::DecorationButtonType::Maximize:
-                text += QLatin1Char('\n') + i18nd("materialdecoration", "Press and hold to show snapping zones");
+                text += QLatin1Char('\n') + i18nd("oxygendecorationlim", "Press and hold to show snapping zones");
                 break;
             case KDecoration3::DecorationButtonType::Close:
-                text += QLatin1Char('\n') + i18nd("materialdecoration", "Press and hold to minimize to the notification area");
+                text += QLatin1Char('\n') + i18nd("oxygendecorationlim", "Press and hold to minimize to the notification area");
                 break;
             default: break;
             }
@@ -951,7 +948,7 @@ void Button::refreshLongPressToolTip()
     } else if (type() == KDecoration3::DecorationButtonType::Close) {
         checkLongPressAction(this, QStringLiteral("Minimize to tray"), QStringLiteral("com.github.luisbocanegra.minimize2tray"), update);
     } else if (canTileWindow(deco)) {
-        checkLongPressAction(this, QStringLiteral("MaterialTilingPopupDispatch"), QStringLiteral("material-tiling"), update);
+        checkLongPressAction(this, QStringLiteral("OxygenLimTilingPopupDispatch"), QStringLiteral("oxygen-lim-tiling"), update);
     } else {
         update(false);
     }
@@ -1009,13 +1006,13 @@ void Button::invokeLongPressAction(const QString &shortcut, const QString &scrip
 void Button::onCloseHold()
 {
     invokeLongPressAction(QStringLiteral("Minimize to tray"), QStringLiteral("com.github.luisbocanegra.minimize2tray"),
-                         i18nd("materialdecoration", "Install kwin-minimize2tray and enable Minimize to Tray in System Settings > Window Management > KWin Scripts."));
+                         i18nd("oxygendecorationlim", "Install kwin-minimize2tray and enable Minimize to Tray in System Settings > Window Management > KWin Scripts."));
 }
 
 void Button::onMinimizeHold()
 {
     invokeLongPressAction(QStringLiteral("minimizeAllOthersActiveScreen"), {},
-                         i18nd("materialdecoration", "The action to minimize all other windows is unavailable. It requires Plasma 6.6 or later."));
+                         i18nd("oxygendecorationlim", "The action to minimize all other windows is unavailable. It requires Plasma 6.6 or later."));
 }
 
 void Button::onMaximizeHold()
@@ -1031,4 +1028,4 @@ void Button::onMaximizeHold()
     }
 }
 
-} // namespace Material
+} // namespace OxygenLim

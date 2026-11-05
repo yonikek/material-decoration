@@ -19,7 +19,7 @@
 
 // own
 #include "Button.h"
-#include "Material.h"
+#include "OxygenLim.h"
 
 // KDecoration
 #include <KDecoration3/DecoratedWindow>
@@ -27,7 +27,7 @@
 // Qt
 #include <QPainter>
 
-namespace Material
+namespace OxygenLim
 {
 
 class ShadeButton
@@ -71,4 +71,4 @@ public:
     }
 };
 
-} // namespace Material
+} // namespace OxygenLim

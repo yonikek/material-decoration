@@ -5,7 +5,7 @@
 #include <QPainter>
 #include <cmath>
 
-namespace Material
+namespace OxygenLim
 {
 TilingZoneButton::TilingZoneButton(Qt::Edges outerEdges, QWidget *parent)
     : QToolButton(parent)

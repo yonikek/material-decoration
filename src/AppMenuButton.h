@@ -20,7 +20,7 @@
 // own
 #include "Button.h"
 
-namespace Material
+namespace OxygenLim
 {
 
 class Decoration;
@@ -50,4 +50,4 @@ private:
     int m_buttonIndex;
 };
 
-} // namespace Material
+} // namespace OxygenLim

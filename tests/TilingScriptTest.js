@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
-const source = fs.readFileSync(path.join(__dirname, '../scripts/material-tiling/contents/code/main.js'), 'utf8');
+const source = fs.readFileSync(path.join(__dirname, '../scripts/oxygen-lim-tiling/contents/code/main.js'), 'utf8');
 let assertions = 0;
 function fixture(extraWindows = []) {
     const output = {};
@@ -42,7 +42,7 @@ function fixture(extraWindows = []) {
         }};
 }
 {
-    const caption = 'com.github.guiodic.material-decoration.popup';
+    const caption = 'oxygen-decoration-lim.popup';
     const existing = {caption, popupWindow: true, skipSwitcher: false};
     const unrelated = {caption: 'Another popup', popupWindow: true, skipSwitcher: false};
     const normal = {caption, popupWindow: false, skipSwitcher: false};
@@ -52,7 +52,7 @@ function fixture(extraWindows = []) {
     assert.equal(normal.skipSwitcher, false);
     const added = {caption, popupWindow: true, skipSwitcher: false};
     f.workspace.windowAdded.callback(added);
-    assert.equal(added.skipSwitcher, true, 'exclude newly opened Material popups');
+    assert.equal(added.skipSwitcher, true, 'exclude newly opened oxygen-decoration-lim popups');
     f.workspace.windowAdded.callback(unrelated);
     f.workspace.windowAdded.callback(normal);
     assert.equal(unrelated.skipSwitcher, false);

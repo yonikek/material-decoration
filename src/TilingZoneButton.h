@@ -4,7 +4,7 @@
 #include <QToolButton>
 #include <QVariantAnimation>
 
-namespace Material
+namespace OxygenLim
 {
 class TilingZoneButton : public QToolButton
 {

@@ -35,7 +35,7 @@
 class QTimer;
 class QVariantAnimation;
 
-namespace Material
+namespace OxygenLim
 {
 
 class Decoration;
@@ -206,4 +206,4 @@ private:
     friend class Decoration;
 };
 
-} // namespace Material
+} // namespace OxygenLim

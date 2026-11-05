@@ -26,7 +26,7 @@ class QComboBox;
 class QLineEdit;
 class QPushButton;
 
-namespace Material
+namespace OxygenLim
 {
 
 class ExceptionDialog : public QDialog
@@ -56,9 +56,6 @@ private:
     QCheckBox *m_hideApplicationMenuCheckBox = nullptr;
     QCheckBox *m_hamburgerMenuCheckBox = nullptr;
     QCheckBox *m_hideShadowCheckBox = nullptr;
-    QCheckBox *m_squareCornersCheckBox = nullptr;
-    QCheckBox *m_outlineActiveCheckBox = nullptr;
-    QComboBox *m_menuColorsCombo = nullptr;
 };
 
-} // namespace Material
+} // namespace OxygenLim

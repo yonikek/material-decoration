@@ -21,13 +21,14 @@
 #include "TextButton.h"
 #include "Decoration.h"
 #include "AltKeyMonitor.h"
+#include "OxygenHelper.h"
 #include <KDecoration3/DecoratedWindow>
 
 // Qt
 #include <QPainter>
 
 
-namespace Material
+namespace OxygenLim
 {
 
 TextButton::TextButton(Decoration *decoration, const int buttonIndex, QObject *parent)
@@ -58,7 +59,14 @@ void TextButton::paintIcon(QPainter *painter, const QRectF &iconRect, const Pixe
 
     const bool isAltPressed = deco->window()->isActive() && AltKeyMonitor::instance()->isAltPressed();
     const Qt::TextFlag mnemonicFlag = isAltPressed ? Qt::TextShowMnemonic : Qt::TextHideMnemonic;
-    painter->drawText(snappedRect, mnemonicFlag | Qt::AlignCenter | Qt::TextSingleLine, m_text); 
+    const int flags = mnemonicFlag | Qt::AlignCenter | Qt::TextSingleLine;
+
+    // Oxygen-style light "contrast" copy of the text, one pixel below
+    painter->setPen(OxygenHelper::self()->calcLightColor(deco->titleBarBackgroundColor()));
+    painter->drawText(snappedRect.translated(0, 1), flags, m_text);
+
+    painter->setPen(foregroundColor());
+    painter->drawText(snappedRect, flags, m_text);
 }
 
 QSizeF TextButton::getTextSize() const
@@ -69,8 +77,7 @@ QSizeF TextButton::getTextSize() const
     }
 
     const qreal textWidth = deco->getMenuTextWidth(m_text);
-    const qreal titleBarHeight = deco->titleBarHeight();
-    const QSizeF size(textWidth, titleBarHeight);
+    const QSizeF size(textWidth, deco->captionHeight());
     return size;
 }
 
@@ -116,4 +123,4 @@ void TextButton::updateGeometry()
 }
 
 
-} // namespace Material
+} // namespace OxygenLim

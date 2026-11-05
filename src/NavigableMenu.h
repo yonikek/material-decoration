@@ -25,7 +25,7 @@
 #include <QMenu>
 #include <QPointer>
 
-namespace Material
+namespace OxygenLim
 {
 
 class Decoration;
@@ -50,4 +50,4 @@ private:
     QPointer<Decoration> m_decoration;
 };
 
-} // namespace Material
+} // namespace OxygenLim

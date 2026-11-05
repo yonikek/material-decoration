@@ -37,7 +37,7 @@ static constexpr int MAX_MENU_DEPTH = 20;
 static constexpr int MAX_QUERY_TOKENS = 6;
 static constexpr qint64 FUZZY_SEARCH_BUDGET_NS = 17'000'000;
 
-namespace Material
+namespace OxygenLim
 {
 
 /**
@@ -978,4 +978,4 @@ QString AppMenuSearch::getActionText(QAction *action) const
     return cachedText;
 }
 
-} // namespace Material
+} // namespace OxygenLim

@@ -13,17 +13,17 @@ namespace Ui
 class Config;
 }
 
-namespace Material
+namespace OxygenLim
 {
 class InternalSettings;
 }
 
-class MaterialDecorationKCM : public KCModule
+class OxygenDecorationLimKCM : public KCModule
 {
     Q_OBJECT
 public:
-    explicit MaterialDecorationKCM(QObject *parent, const KPluginMetaData &data);
-    ~MaterialDecorationKCM() override;
+    explicit OxygenDecorationLimKCM(QObject *parent, const KPluginMetaData &data);
+    ~OxygenDecorationLimKCM() override;
 
     void load() override;
     void save() override;
@@ -34,10 +34,10 @@ private:
 
 private:
     std::unique_ptr<Ui::Config> m_ui;
-    std::unique_ptr<Material::InternalSettings> m_settings;
+    std::unique_ptr<OxygenLim::InternalSettings> m_settings;
 
     void setupConnections();
     bool isChanged() const;
     void updateUI();
-    void loadUIFromSettings(const Material::InternalSettings &settings);
+    void loadUIFromSettings(const OxygenLim::InternalSettings &settings);
 };

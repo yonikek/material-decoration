@@ -59,7 +59,7 @@ private slots:
         scripts.loaded = loaded ? QStringLiteral("script") : QString();
         bool finished = false;
         bool available = !expected;
-        Material::checkLongPressAction(this, QStringLiteral("action"), requiresScript ? QStringLiteral("script") : QString(),
+        OxygenLim::checkLongPressAction(this, QStringLiteral("action"), requiresScript ? QStringLiteral("script") : QString(),
                                       [&](bool result) { available = result; finished = true; });
         QTRY_VERIFY(finished);
         QCOMPARE(available, expected);
@@ -68,7 +68,7 @@ private slots:
     {
         auto *button = new QObject;
         bool called = false;
-        Material::checkLongPressAction(button, QStringLiteral("action"), QStringLiteral("script"), [&](bool) { called = true; });
+        OxygenLim::checkLongPressAction(button, QStringLiteral("action"), QStringLiteral("script"), [&](bool) { called = true; });
         delete button;
         QTest::qWait(50);
         QVERIFY(!called);
@@ -78,7 +78,7 @@ private slots:
         QDBusConnection::sessionBus().unregisterObject(QStringLiteral("/component/kwin"));
         bool finished = false;
         bool available = true;
-        Material::checkLongPressAction(this, QStringLiteral("action"), {}, [&](bool result) { available = result; finished = true; });
+        OxygenLim::checkLongPressAction(this, QStringLiteral("action"), {}, [&](bool result) { available = result; finished = true; });
         QTRY_VERIFY(finished);
         QVERIFY(!available);
     }

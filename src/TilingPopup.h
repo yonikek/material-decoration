@@ -7,7 +7,7 @@
 
 class QLabel;
 
-namespace Material
+namespace OxygenLim
 {
 
 class TilingZoneButton;

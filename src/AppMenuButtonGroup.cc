@@ -21,7 +21,7 @@
 // own
 #include "AppMenuButtonGroup.h"
 #include "AppMenuSearch.h"
-#include "Material.h"
+#include "OxygenLim.h"
 #include "BuildConfig.h"
 #include "AppMenuModel.h"
 #include "Decoration.h"
@@ -56,7 +56,7 @@
 #include <functional>
 #include <utility>
 
-namespace Material
+namespace OxygenLim
 {
 
 AppMenuButtonGroup::AppMenuButtonGroup(Decoration *decoration)
@@ -1378,4 +1378,4 @@ void AppMenuButtonGroup::handleHoverMove(const QPointF &pos)
     }
 }
 
-} // namespace Material
+} // namespace OxygenLim

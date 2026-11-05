@@ -32,7 +32,7 @@
 
 class QElapsedTimer;
 
-namespace Material
+namespace OxygenLim
 {
 
 class AppMenuModel;
@@ -309,4 +309,4 @@ private:
     QList<QPointer<QMenu>> m_trackedMenus;
 };
 
-} // namespace Material
+} // namespace OxygenLim

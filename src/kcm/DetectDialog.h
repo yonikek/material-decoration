@@ -23,7 +23,7 @@
 class QLabel;
 class QPushButton;
 
-namespace Material
+namespace OxygenLim
 {
 
 class DetectDialog : public QDialog
@@ -48,4 +48,4 @@ private:
     QString m_caption;
 };
 
-} // namespace Material
+} // namespace OxygenLim

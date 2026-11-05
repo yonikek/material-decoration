@@ -1,5 +1,5 @@
 /*
-  flake.nix for material-decoration.
+  flake.nix for oxygen-decoration-lim.
 
   Install it on NixOS from the repository:
 
@@ -12,26 +12,26 @@
   To use it from your NixOS configuration, add this flake as an input:
 
       # flake.nix of your system
-      inputs.material-decoration = {
-        url = "github:guiodic/material-decoration/master"; # or path: to this repo
+      inputs.oxygen-decoration-lim = {
+        url = "github:guiodic/oxygen-decoration-lim/master"; # or path: to this repo
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
       # in your outputs, then in configuration.nix:
       environment.systemPackages = [
-        material-decoration.packages.${system}.default
+        oxygen-decoration-lim.packages.${system}.default
       ];
 
   KWin discovers window decoration plugins by scanning the Qt plugin
   directories (org.kde.kdecoration3) reachable through the system
   environment, which is covered for packages pulled in via the Plasma
   system environment. Select the
-  "Material" theme in System Settings > Colors & Themes > Window
+  "oxygen-decoration-lim" theme in System Settings > Colors & Themes > Window
   Decorations and log out/in afterwards (KWin must restart to load the
-  plugin and the companion "Material Tiling Popup" script).
+  plugin and the companion "Oxygen LIM Tiling Popup" script).
 */
 {
-  description = "Material-ish window decoration theme for KWin";
+  description = "Oxygen-styled window decoration theme for KWin (with locally integrated menus)";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -51,26 +51,26 @@
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
-          material-decoration = pkgs.kdePackages.callPackage ./package.nix {
+          oxygen-decoration-lim = pkgs.kdePackages.callPackage ./package.nix {
             source = self;
           };
         in
         {
-          inherit material-decoration;
-          default = material-decoration;
+          inherit oxygen-decoration-lim;
+          default = oxygen-decoration-lim;
         }
       );
 
       checks = forAllSystems (
         system:
         let
-          material-decoration = self.packages.${system}.material-decoration;
+          oxygen-decoration-lim = self.packages.${system}.oxygen-decoration-lim;
         in
         {
-          build = material-decoration;
+          build = oxygen-decoration-lim;
           # Runs the package's CTest suite (including the Qt unit tests and
-          # the material-tiling KWin script test under a private DBus session).
-          tests = material-decoration.override { withTests = true; };
+          # the oxygen-lim-tiling KWin script test under a private DBus session).
+          tests = oxygen-decoration-lim.override { withTests = true; };
         }
       );
 

@@ -22,7 +22,7 @@
 #include <QPainter>
 #include <QtMath>
 
-namespace Material
+namespace OxygenLim
 {
 
 SearchButton::SearchButton(Decoration *decoration, const int buttonIndex, QObject *parent)
@@ -53,4 +53,4 @@ void SearchButton::paintIcon(QPainter *painter, const QRectF &iconRect, const Pi
     painter->drawLine(handleStart, handleEnd);
 }
 
-} // namespace Material
+} // namespace OxygenLim

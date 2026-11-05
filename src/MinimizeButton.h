@@ -26,7 +26,7 @@
 // Qt
 #include <QPainter>
 
-namespace Material
+namespace OxygenLim
 {
 
 class MinimizeButton
@@ -55,4 +55,4 @@ public:
     }
 };
 
-} // namespace Material
+} // namespace OxygenLim

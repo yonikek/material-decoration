@@ -10,30 +10,30 @@
 #include <QWidgetAction>
 #include <limits>
 
-namespace Material
+namespace OxygenLim
 {
 
 QVector<TilingLayout> tilingLayouts()
 {
-    const TilingZone left{{0, 0, .5, 1}, Qt::LeftEdge, i18nd("materialdecoration", "Left half")};
-    const TilingZone right{{.5, 0, .5, 1}, Qt::RightEdge, i18nd("materialdecoration", "Right half")};
-    const TilingZone top{{0, 0, 1, .5}, Qt::TopEdge, i18nd("materialdecoration", "Top half")};
-    const TilingZone bottom{{0, .5, 1, .5}, Qt::BottomEdge, i18nd("materialdecoration", "Bottom half")};
-    const TilingZone topLeft{{0, 0, .5, .5}, Qt::TopEdge | Qt::LeftEdge, i18nd("materialdecoration", "Top left quarter")};
-    const TilingZone topRight{{.5, 0, .5, .5}, Qt::TopEdge | Qt::RightEdge, i18nd("materialdecoration", "Top right quarter")};
-    const TilingZone bottomLeft{{0, .5, .5, .5}, Qt::BottomEdge | Qt::LeftEdge, i18nd("materialdecoration", "Bottom left quarter")};
-    const TilingZone bottomRight{{.5, .5, .5, .5}, Qt::BottomEdge | Qt::RightEdge, i18nd("materialdecoration", "Bottom right quarter")};
+    const TilingZone left{{0, 0, .5, 1}, Qt::LeftEdge, i18nd("oxygendecorationlim", "Left half")};
+    const TilingZone right{{.5, 0, .5, 1}, Qt::RightEdge, i18nd("oxygendecorationlim", "Right half")};
+    const TilingZone top{{0, 0, 1, .5}, Qt::TopEdge, i18nd("oxygendecorationlim", "Top half")};
+    const TilingZone bottom{{0, .5, 1, .5}, Qt::BottomEdge, i18nd("oxygendecorationlim", "Bottom half")};
+    const TilingZone topLeft{{0, 0, .5, .5}, Qt::TopEdge | Qt::LeftEdge, i18nd("oxygendecorationlim", "Top left quarter")};
+    const TilingZone topRight{{.5, 0, .5, .5}, Qt::TopEdge | Qt::RightEdge, i18nd("oxygendecorationlim", "Top right quarter")};
+    const TilingZone bottomLeft{{0, .5, .5, .5}, Qt::BottomEdge | Qt::LeftEdge, i18nd("oxygendecorationlim", "Bottom left quarter")};
+    const TilingZone bottomRight{{.5, .5, .5, .5}, Qt::BottomEdge | Qt::RightEdge, i18nd("oxygendecorationlim", "Bottom right quarter")};
     return {{left, right}, {top, bottom}, {}, {topLeft, topRight, bottomLeft, bottomRight}};
 }
 
 TilingPopup::TilingPopup(QWidget *parent)
     : QMenu(parent)
 {
-    setObjectName(QStringLiteral("materialTilingPopup"));
+    setObjectName(QStringLiteral("oxygenLimTilingPopup"));
     // Match NavigableMenu so the companion script can identify our popups.
-    setWindowTitle(QStringLiteral("com.github.guiodic.material-decoration.popup"));
+    setWindowTitle(QStringLiteral("oxygen-decoration-lim.popup"));
     installEventFilter(this);
-    setAccessibleName(i18nd("materialdecoration", "Window tiling layouts"));
+    setAccessibleName(i18nd("oxygendecorationlim", "Window tiling layouts"));
     auto *panel = new QWidget(this);
     auto *grid = new QGridLayout(panel);
     const int unit = fontMetrics().height();
@@ -47,8 +47,8 @@ TilingPopup::TilingPopup(QWidget *parent)
         grid->addWidget(preview, int(i / 2), int(i % 2));
         if (i == 2) {
             m_customPreview = preview;
-            preview->setAccessibleName(i18nd("materialdecoration", "Custom tiling layout (Meta+T)"));
-            m_customPlaceholder = new QLabel(i18nd("materialdecoration", "Custom layout unavailable"), preview);
+            preview->setAccessibleName(i18nd("oxygendecorationlim", "Custom tiling layout (Meta+T)"));
+            m_customPlaceholder = new QLabel(i18nd("oxygendecorationlim", "Custom layout unavailable"), preview);
             m_customPlaceholder->setGeometry(preview->rect());
             m_customPlaceholder->setAlignment(Qt::AlignCenter);
             m_customPlaceholder->setWordWrap(true);
@@ -76,7 +76,7 @@ TilingZoneButton *TilingPopup::createZone(QWidget *preview, const TilingZone &zo
     button->setGeometry(bounds.toAlignedRect().adjusted(gap / 2, gap / 2, -gap / 2, -gap / 2));
     button->setAccessibleName(zone.label);
     button->setToolTip(zone.customTileId.isEmpty() ? zone.label
-        : zone.label + QLatin1Char('\n') + i18nd("materialdecoration", "Meta+T to edit snapping zones"));
+        : zone.label + QLatin1Char('\n') + i18nd("oxygendecorationlim", "Meta+T to edit snapping zones"));
     button->setCornerRadius(m_zoneCornerRadius);
     button->setSquareCornersTiled(m_squareCornersTiled);
     button->setAnimationSettings(m_animationsEnabled, m_animationDuration);
@@ -99,7 +99,7 @@ void TilingPopup::setCustomLayout(const CustomTilingLayout &layout)
     int index = 4; // After the two fixed previews in the top row.
     for (const auto &zone : layout) {
         m_buttons.insert(index, createZone(m_customPreview, {zone.rect, {},
-                         i18nd("materialdecoration", "Custom tile %1", index - 3), zone.id}));
+                         i18nd("oxygendecorationlim", "Custom tile %1", index - 3), zone.id}));
         ++index;
     }
 }

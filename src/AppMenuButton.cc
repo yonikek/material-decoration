@@ -33,7 +33,7 @@
 #include <KDecoration3/DecoratedWindow>
 
 
-namespace Material
+namespace OxygenLim
 {
 
 AppMenuButton::AppMenuButton(Decoration *decoration, const int buttonIndex, QObject *parent)
@@ -58,52 +58,18 @@ int AppMenuButton::buttonIndex() const
 
 QColor AppMenuButton::backgroundColor() const
 {
-    const auto *buttonGroup = qobject_cast<AppMenuButtonGroup *>(parent());
-    if (buttonGroup
-        && buttonGroup->isMenuOpen()
-        && buttonGroup->currentIndex() != m_buttonIndex
-    ) {
-        return Qt::transparent;
-    } else {
-        auto *deco = qobject_cast<Decoration *>(decoration());
-        if (!deco) {
-            return {};
-        }
-        
-        if (deco->m_internalSettings->useSystemColors()) {
-            if (!this->isChecked() && this->isHovered()) {
-                QColor hoveredColor = KColorUtils::mix(
-                    qApp->palette().color(QPalette::Highlight), 
-                    deco->titleBarBackgroundColor(), 
-                    0.7);
-                QColor normalColor = QColor(hoveredColor);
-                normalColor.setAlphaF(0);
-                return KColorUtils::mix(normalColor, hoveredColor, transitionValue());
-            }   
-            
-            auto *decoratedClient = deco->window();
-            if (!decoratedClient) {
-                return {};
-            }
-            
-            if (decoratedClient->isActive() && this->isChecked()) {
-                return qApp->palette().color(QPalette::Highlight);
-            }
-        }
-        
-        return Button::backgroundColor();
-    }
+    const auto *deco = qobject_cast<Decoration *>(decoration());
+    return deco ? deco->titleBarBackgroundColor() : QColor();
 }
 
 QColor AppMenuButton::foregroundColor() const
 {
     const auto *buttonGroup = qobject_cast<AppMenuButtonGroup *>(parent());
-    
     const auto *deco = qobject_cast<Decoration *>(decoration());
-        if (!deco) {
-            return {};
-        }
-    
+    if (!deco) {
+        return {};
+    }
+
     if (buttonGroup
         && buttonGroup->isMenuOpen()
         && buttonGroup->currentIndex() != m_buttonIndex
@@ -112,15 +78,8 @@ QColor AppMenuButton::foregroundColor() const
             deco->titleBarBackgroundColor(),
             deco->titleBarForegroundColor(),
             0.8);
-    } else {
-        if (deco->m_internalSettings->useSystemColors()) {
-            if (this->isChecked()) {
-                return qApp->palette().color(QPalette::HighlightedText);
-            }  
-        }
-        
-        return Button::foregroundColor();
     }
+    return deco->titleBarForegroundColor();
 }
 
 void AppMenuButton::trigger()
@@ -135,4 +94,4 @@ void AppMenuButton::trigger()
     buttonGroup->trigger(m_buttonIndex);
 }
 
-} // namespace Material
+} // namespace OxygenLim

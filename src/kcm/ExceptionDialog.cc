@@ -31,7 +31,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-namespace Material
+namespace OxygenLim
 {
 
 ExceptionDialog::ExceptionDialog(QWidget *parent)
@@ -73,21 +73,11 @@ ExceptionDialog::ExceptionDialog(QWidget *parent)
     m_hideApplicationMenuCheckBox = new QCheckBox(i18n("Show the window title and hide the menu"), this);
     m_hamburgerMenuCheckBox = new QCheckBox(i18n("Show menu as hamburger"), this);
     m_hideShadowCheckBox = new QCheckBox(i18n("Don't draw window shadow"), this);
-    m_squareCornersCheckBox = new QCheckBox(i18n("Don't round window corners"), this);
-    m_outlineActiveCheckBox = new QCheckBox(i18n("Paint a thin line around the window"), this);
 
     optionsLayout->addWidget(m_hideTitleBarCheckBox);
     optionsLayout->addWidget(m_hideApplicationMenuCheckBox);
     optionsLayout->addWidget(m_hamburgerMenuCheckBox);
     optionsLayout->addWidget(m_hideShadowCheckBox);
-    optionsLayout->addWidget(m_squareCornersCheckBox);
-    optionsLayout->addWidget(m_outlineActiveCheckBox);
-
-    auto menuColorsLayout = new QFormLayout();
-    m_menuColorsCombo = new QComboBox(this);
-    m_menuColorsCombo->addItems({i18n("Use global setting"), i18n("Enabled"), i18n("Disabled")});
-    menuColorsLayout->addRow(i18n("Menus follow decoration colors"), m_menuColorsCombo);
-    optionsLayout->addLayout(menuColorsLayout);
 
     mainLayout->addWidget(optionsGroup);
 
@@ -149,10 +139,6 @@ void ExceptionDialog::setException(const InternalSettingsPtr &exception)
     m_hideApplicationMenuCheckBox->setChecked(exception->hideApplicationMenu());
     m_hamburgerMenuCheckBox->setChecked(exception->hamburgerMenu());
     m_hideShadowCheckBox->setChecked(exception->hideShadow());
-    m_squareCornersCheckBox->setChecked(exception->squareCorners());
-    m_outlineActiveCheckBox->setChecked(exception->outlineActive());
-    m_menuColorsCombo->setCurrentIndex((exception->mask() & ExceptionMask::MenusFollowDecorationColors)
-        ? (exception->menusFollowDecorationColors() ? 1 : 2) : 0);
 
     onHideTitleBarToggled(exception->hideTitleBar());
 }
@@ -170,22 +156,14 @@ void ExceptionDialog::applyToException(InternalSettingsPtr &exception)
     int mask = ExceptionMask::HideTitleBar |
                ExceptionMask::HideApplicationMenu |
                ExceptionMask::HamburgerMenu |
-               ExceptionMask::HideShadow |
-               ExceptionMask::SquareCorners |
-               ExceptionMask::OutlineActive;
+               ExceptionMask::HideShadow;
 
     exception->setHideTitleBar(m_hideTitleBarCheckBox->isChecked());
     exception->setHideApplicationMenu(m_hideApplicationMenuCheckBox->isChecked());
     exception->setHamburgerMenu(m_hamburgerMenuCheckBox->isChecked());
     exception->setHideShadow(m_hideShadowCheckBox->isChecked());
-    exception->setSquareCorners(m_squareCornersCheckBox->isChecked());
-    exception->setOutlineActive(m_outlineActiveCheckBox->isChecked());
 
-    if (m_menuColorsCombo->currentIndex() != 0) {
-        mask |= ExceptionMask::MenusFollowDecorationColors;
-    }
-    exception->setMenusFollowDecorationColors(m_menuColorsCombo->currentIndex() == 1);
     exception->setMask(mask);
 }
 
-} // namespace Material
+} // namespace OxygenLim

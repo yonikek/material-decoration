@@ -5,7 +5,7 @@
 #include <functional>
 
 class QObject;
-namespace Material
+namespace OxygenLim
 {
 bool canTileWindow(QObject *decoration);
 void fetchTilingLayout(QObject *decoration, std::function<void(bool, const CustomTilingLayout &)> callback);

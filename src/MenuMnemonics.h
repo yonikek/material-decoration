@@ -3,7 +3,7 @@
 
 class QMenu;
 
-namespace Material
+namespace OxygenLim
 {
 // Attach once to an imported popup; the menu owns the observer.
 void manageMenuMnemonics(QMenu *menu);

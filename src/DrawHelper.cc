@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "DrawHelper.h"
 
-namespace Material
+namespace OxygenLim
 {
 QPainterPath DrawHelper::getRoundedPath(const QRectF &rect, qreal radius,
                                         bool roundTopLeft, bool roundTopRight,
