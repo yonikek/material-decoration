@@ -504,9 +504,13 @@ void Button::paintOxygenButton(QPainter *painter, Decoration *deco)
     const int size = deco->buttonHeight();
     const QPointF origin(geometry().left(), geometry().top() + slabYOffset(deco));
 
-    // base button color and text color
-    const QColor base = palette.color(active ? QPalette::Active : QPalette::Inactive, QPalette::Button);
-    QColor color = palette.color(active ? QPalette::Active : QPalette::Disabled, QPalette::ButtonText);
+    // base button color and text color, cross-faded while the window (de)activates
+    const qreal opacity = deco->activeOpacity();
+    const auto fade = [opacity](const QColor &inactiveColor, const QColor &activeColor) {
+        return opacity >= 1.0 ? activeColor : (opacity <= 0.0 ? inactiveColor : KColorUtils::mix(inactiveColor, activeColor, opacity));
+    };
+    const QColor base = fade(palette.color(QPalette::Inactive, QPalette::Button), palette.color(QPalette::Active, QPalette::Button));
+    QColor color = fade(palette.color(QPalette::Disabled, QPalette::ButtonText), palette.color(QPalette::Active, QPalette::ButtonText));
 
     // decide decoration color
     QColor glow;
@@ -717,8 +721,11 @@ QColor Button::backgroundColor() const
     if (!deco) {
         return {};
     }
-    const bool active = deco->window()->isActive();
-    return deco->window()->palette().color(active ? QPalette::Active : QPalette::Inactive, QPalette::Button);
+    const QPalette palette = deco->window()->palette();
+    const qreal o = deco->activeOpacity();
+    const QColor active = palette.color(QPalette::Active, QPalette::Button);
+    const QColor inactive = palette.color(QPalette::Inactive, QPalette::Button);
+    return o >= 1.0 ? active : (o <= 0.0 ? inactive : KColorUtils::mix(inactive, active, o));
 }
 
 QColor Button::foregroundColor() const
@@ -727,8 +734,11 @@ QColor Button::foregroundColor() const
     if (!deco) {
         return {};
     }
-    const bool active = deco->window()->isActive();
-    return deco->window()->palette().color(active ? QPalette::Active : QPalette::Disabled, QPalette::ButtonText);
+    const QPalette palette = deco->window()->palette();
+    const qreal o = deco->activeOpacity();
+    const QColor active = palette.color(QPalette::Active, QPalette::ButtonText);
+    const QColor inactive = palette.color(QPalette::Disabled, QPalette::ButtonText);
+    return o >= 1.0 ? active : (o <= 0.0 ? inactive : KColorUtils::mix(inactive, active, o));
 }
 
 

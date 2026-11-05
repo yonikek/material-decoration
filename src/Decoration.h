@@ -38,6 +38,7 @@
 #include <QPainterPath>
 #include <KDecoration3/DecorationShadow>
 #include <QTimer>
+#include <QVariantAnimation>
 #include <QElapsedTimer>
 
 namespace KDecoration3
@@ -183,6 +184,7 @@ private:
     void unPressAllButtons();
 
     // Colours follow the window palette, like the Oxygen style does.
+    qreal activeOpacity() const { return m_activeOpacity; }
     QColor titleBarBackgroundColor() const;
     QColor titleBarOpaqueBackgroundColor() const { return titleBarBackgroundColor(); }
     QColor titleBarForegroundColor() const;
@@ -213,6 +215,11 @@ private:
     QPointF m_lastHoverPos;
     bool m_titleBarHoverActive = false;
     bool m_tabletMode = false;
+
+    // Animated transition between the active and inactive look (0 = inactive, 1 = active)
+    QVariantAnimation *m_activeAnimation = nullptr;
+    qreal m_activeOpacity = 1.0;
+    void setActiveOpacity(qreal value);
 
     friend class AppMenuButtonGroup;
     friend class NavigableMenu;
