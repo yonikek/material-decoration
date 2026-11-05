@@ -117,6 +117,10 @@ private:
     qreal captionHeight() const;
     // Vertical offset of the caption/button row from the top of the window.
     qreal rowTop() const;
+    // Maximized windows extend the menu buttons up to the screen edge (Fitts'
+    // law): the hit region grows by menuExtension() above the caption row.
+    qreal menuExtension() const;
+    qreal menuTop() const;
     qreal buttonSpacing() const;
     qreal sideMargin() const;
     qreal borderSize(bool bottom = false) const;

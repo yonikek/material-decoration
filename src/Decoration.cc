@@ -726,7 +726,7 @@ void Decoration::updateButtonHeight()
     const qreal windowButtonsHeight = captionHeight() + (isMaximized() ? rowTop() : 0);
     setButtonGroupHeight(m_leftButtons, windowButtonsHeight);
     setButtonGroupHeight(m_rightButtons, windowButtonsHeight);
-    setButtonGroupHeight(m_menuButtons, captionHeight());
+    setButtonGroupHeight(m_menuButtons, captionHeight() + menuExtension());
 }
 
 void Decoration::invalidateCaptionCache() const
@@ -770,7 +770,7 @@ void Decoration::updateButtonsGeometry()
         } else {
             availableRect.setRight(availableRect.right() - captionOffset);
         }
-        availableRect.translate(0, rowTop());
+        availableRect.translate(0, menuTop());
 
         m_menuButtons->updateOverflow(availableRect);
 
@@ -964,6 +964,16 @@ qreal Decoration::titleBarHeight() const
 qreal Decoration::rowTop() const
 {
     return settings()->smallSpacing() * Metrics::TitleBar_TopMargin;
+}
+
+qreal Decoration::menuExtension() const
+{
+    return isMaximized() ? rowTop() : 0;
+}
+
+qreal Decoration::menuTop() const
+{
+    return rowTop() - menuExtension();
 }
 
 qreal Decoration::buttonSpacing() const

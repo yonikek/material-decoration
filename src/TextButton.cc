@@ -77,7 +77,7 @@ QSizeF TextButton::getTextSize() const
     }
 
     const qreal textWidth = deco->getMenuTextWidth(m_text);
-    const QSizeF size(textWidth, deco->captionHeight());
+    const QSizeF size(textWidth, deco->captionHeight() + deco->menuExtension());
     return size;
 }
 
