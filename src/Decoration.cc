@@ -52,7 +52,10 @@
 #include <KLocalizedString>
 
 // Qt
+#include <KColorUtils>
 #include <QApplication>
+#include <QEasingCurve>
+#include <QHash>
 #include <QDebug>
 #include <QtMath>
 #include <QHoverEvent>
@@ -98,6 +101,8 @@ static std::atomic<int> s_decoCount(0);
 
 // Shadows are shared between decorations: [hasBorder][active]
 static std::shared_ptr<KDecoration3::DecorationShadow> s_cachedShadows[2][2];
+// cross-faded shadows used during the active/inactive transition: key = (index << 1) | hasBorder
+static QHash<int, std::shared_ptr<KDecoration3::DecorationShadow>> s_animatedShadows;
 
 Decoration::Decoration(QObject *parent, const QVariantList &args)
     : KDecoration3::Decoration(parent, args)
@@ -119,6 +124,7 @@ Decoration::~Decoration()
                 shadow.reset();
             }
         }
+        s_animatedShadows.clear();
     }
 }
 
@@ -366,6 +372,15 @@ bool Decoration::init()
     
     connect(decoratedClient, &KDecoration3::DecoratedWindow::activeChanged,
         this, &Decoration::onActiveChanged);
+
+    // fade between the active and inactive look
+    m_activeOpacity = decoratedClient->isActive() ? 1.0 : 0.0;
+    m_activeAnimation = new QVariantAnimation(this);
+    m_activeAnimation->setEasingCurve(QEasingCurve::InOutQuad);
+    connect(m_activeAnimation, &QVariantAnimation::valueChanged,
+        this, [this](const QVariant &value) { setActiveOpacity(value.toReal()); });
+    connect(m_activeAnimation, &QVariantAnimation::finished,
+        this, [this] { updateShadow(); });
 
     connect(decoratedClient, &KDecoration3::DecoratedWindow::adjacentScreenEdgesChanged,
             this, &Decoration::onAdjacentScreenEdgesChanged);
@@ -810,6 +825,35 @@ void Decoration::updateShadow()
 
     const bool active = window()->isActive();
     const bool hasBorder = isShadowOnly() || !hasNoBorders() || window()->isShaded();
+    constexpr int overlap = 4;
+
+    const auto makeShadow = [](const QImage &image) {
+        const int shadowSize = image.width() / 2;
+        auto shadow = std::make_shared<KDecoration3::DecorationShadow>();
+        shadow->setPadding(QMargins(shadowSize - overlap, shadowSize - overlap, shadowSize - overlap, shadowSize - overlap));
+        shadow->setInnerShadowRect(QRect(shadowSize, shadowSize, 1, 1));
+        shadow->setShadow(image);
+        return shadow;
+    };
+
+    // during the transition, show a cross-fade of the two shadows
+    if (m_activeAnimation && m_activeAnimation->state() == QAbstractAnimation::Running) {
+        const int maxIndex = qMax(1, qMin(256, (120 * animationsDuration()) / 1000));
+        const int index = qBound(0, qRound(m_activeOpacity * maxIndex), maxIndex);
+        const int key = (index << 1) | (hasBorder ? 1 : 0);
+        auto iter = s_animatedShadows.find(key);
+        if (iter == s_animatedShadows.end()) {
+            const QImage image = OxygenHelper::self()->animatedShadowImage(hasBorder, qreal(index) / maxIndex);
+            if (!image.isNull()) {
+                iter = s_animatedShadows.insert(key, makeShadow(image));
+            }
+        }
+        if (iter != s_animatedShadows.end()) {
+            setShadow(iter.value());
+            return;
+        }
+    }
+
     auto &cached = s_cachedShadows[hasBorder ? 1 : 0][active ? 1 : 0];
     if (!cached) {
         const QImage shadowImage = OxygenHelper::self()->shadowImage(active, hasBorder);
@@ -817,13 +861,7 @@ void Decoration::updateShadow()
             setShadow(nullptr);
             return;
         }
-
-        const int shadowSize = shadowImage.width() / 2;
-        const int overlap = 4;
-        cached = std::make_shared<KDecoration3::DecorationShadow>();
-        cached->setPadding(QMargins(shadowSize - overlap, shadowSize - overlap, shadowSize - overlap, shadowSize - overlap));
-        cached->setInnerShadowRect(QRect(shadowSize, shadowSize, 1, 1));
-        cached->setShadow(shadowImage);
+        cached = makeShadow(shadowImage);
     }
     setShadow(cached);
 }
@@ -1111,14 +1149,27 @@ void Decoration::cancelButtonActionsForDrag()
 
 QColor Decoration::titleBarBackgroundColor() const
 {
-    const bool active = window()->isActive();
-    return window()->palette().color(active ? QPalette::Active : QPalette::Inactive, QPalette::Window);
+    const QPalette palette = window()->palette();
+    const QColor active = palette.color(QPalette::Active, QPalette::Window);
+    const QColor inactive = palette.color(QPalette::Inactive, QPalette::Window);
+    return m_activeOpacity >= 1.0 ? active : (m_activeOpacity <= 0.0 ? inactive : KColorUtils::mix(inactive, active, m_activeOpacity));
 }
 
 QColor Decoration::titleBarForegroundColor() const
 {
-    const bool active = window()->isActive();
-    return window()->palette().color(active ? QPalette::Active : QPalette::Disabled, QPalette::WindowText);
+    const QPalette palette = window()->palette();
+    const QColor active = palette.color(QPalette::Active, QPalette::WindowText);
+    const QColor inactive = palette.color(QPalette::Disabled, QPalette::WindowText);
+    return m_activeOpacity >= 1.0 ? active : (m_activeOpacity <= 0.0 ? inactive : KColorUtils::mix(inactive, active, m_activeOpacity));
+}
+
+void Decoration::setActiveOpacity(qreal value)
+{
+    m_activeOpacity = qBound(0.0, value, 1.0);
+    if (m_activeAnimation && m_activeAnimation->state() == QAbstractAnimation::Running) {
+        updateShadow();
+    }
+    update();
 }
 
 void Decoration::paintWindowBackground(QPainter *painter, const QRectF &repaintRegion) const
@@ -1350,8 +1401,21 @@ void Decoration::onShadedChanged()
 
 void Decoration::onActiveChanged()
 {
+    const bool active = window()->isActive();
+    const qreal target = active ? 1.0 : 0.0;
+
+    m_activeAnimation->stop();
+    if (!animationsEnabled() || animationsDuration() <= 0) {
+        setActiveOpacity(target);
+        updateShadow();
+        return;
+    }
+
+    m_activeAnimation->setStartValue(m_activeOpacity);
+    m_activeAnimation->setEndValue(target);
+    m_activeAnimation->setDuration(animationsDuration());
+    m_activeAnimation->start();
     updateShadow();
-    update();
 }
 
 void Decoration::onAdjacentScreenEdgesChanged()
