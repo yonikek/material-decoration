@@ -55,6 +55,10 @@ public:
     // that state. The shadow settings are read from oxygenrc.
     QImage shadowImage(bool active, bool hasBorder) const;
 
+    // Cross-fade between the inactive and active shadows (opacity 0..1).
+    // A null image means one of the two shadows is disabled.
+    QImage animatedShadowImage(bool hasBorder, qreal opacity) const;
+
     // Glossy round window button slab. size is the logical size, physicalSize
     // the size in device pixels.
     QPixmap windecoButton(const QColor &color, const QColor &glow, bool sunken, int size, int physicalSize) const;

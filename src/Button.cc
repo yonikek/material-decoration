@@ -442,7 +442,9 @@ void Button::paintMenuButton(QPainter *painter, Decoration *deco)
         const QColor base = deco->titleBarBackgroundColor();
         const QColor light = helper->calcLightColor(base);
         const QColor dark = helper->calcDarkColor(base);
-        const QRectF slab = geometry().adjusted(0.5, 1.5, -0.5, -1.5);
+        // the slab only covers the caption row, not the extension up to the screen edge
+        const qreal extension = deco->menuExtension();
+        const QRectF slab = geometry().adjusted(0.5, 1.5 + extension, -0.5, -1.5);
 
         QLinearGradient gradient(slab.topLeft(), slab.bottomLeft());
         gradient.setColorAt(0.0, OxygenHelper::alphaColor(sunken ? dark : light, strength));
@@ -460,7 +462,8 @@ void Button::paintMenuButton(QPainter *painter, Decoration *deco)
     painter->setRenderHint(QPainter::Antialiasing, true);
     painter->setBrush(Qt::NoBrush);
 
-    const QRectF contentRect = contentArea();
+    // keep the content centered in the caption row when the button is extended upwards
+    const QRectF contentRect = contentArea().translated(0, deco->menuExtension() / 2.0);
 
     PixelSnapper snapper(painter);
 
@@ -504,9 +507,13 @@ void Button::paintOxygenButton(QPainter *painter, Decoration *deco)
     const int size = deco->buttonHeight();
     const QPointF origin(geometry().left(), geometry().top() + slabYOffset(deco));
 
-    // base button color and text color
-    const QColor base = palette.color(active ? QPalette::Active : QPalette::Inactive, QPalette::Button);
-    QColor color = palette.color(active ? QPalette::Active : QPalette::Disabled, QPalette::ButtonText);
+    // base button color and text color, cross-faded while the window (de)activates
+    const qreal opacity = deco->activeOpacity();
+    const auto fade = [opacity](const QColor &inactiveColor, const QColor &activeColor) {
+        return opacity >= 1.0 ? activeColor : (opacity <= 0.0 ? inactiveColor : KColorUtils::mix(inactiveColor, activeColor, opacity));
+    };
+    const QColor base = fade(palette.color(QPalette::Inactive, QPalette::Button), palette.color(QPalette::Active, QPalette::Button));
+    QColor color = fade(palette.color(QPalette::Disabled, QPalette::ButtonText), palette.color(QPalette::Active, QPalette::ButtonText));
 
     // decide decoration color
     QColor glow;
@@ -685,7 +692,11 @@ void Button::setHeight(qreal buttonHeight)
     }
     // For simplicity, don't count the 1.x:1 scaling in the left/right padding.
     // The left/right padding is mainly for the border offset alignment.
-    updateSize(buttonHeight * 1.1, buttonHeight);
+    // Menu buttons of maximized windows are taller (they reach the screen
+    // edge), but keep the width of the regular caption row.
+    const auto *deco = qobject_cast<Decoration *>(decoration());
+    const qreal widthBase = deco ? deco->captionHeight() : buttonHeight;
+    updateSize(widthBase * 1.1, buttonHeight);
 }
 
 void Button::setPenWidth(QPainter *painter, const qreal scale, bool snapped)
@@ -717,8 +728,11 @@ QColor Button::backgroundColor() const
     if (!deco) {
         return {};
     }
-    const bool active = deco->window()->isActive();
-    return deco->window()->palette().color(active ? QPalette::Active : QPalette::Inactive, QPalette::Button);
+    const QPalette palette = deco->window()->palette();
+    const qreal o = deco->activeOpacity();
+    const QColor active = palette.color(QPalette::Active, QPalette::Button);
+    const QColor inactive = palette.color(QPalette::Inactive, QPalette::Button);
+    return o >= 1.0 ? active : (o <= 0.0 ? inactive : KColorUtils::mix(inactive, active, o));
 }
 
 QColor Button::foregroundColor() const
@@ -727,8 +741,11 @@ QColor Button::foregroundColor() const
     if (!deco) {
         return {};
     }
-    const bool active = deco->window()->isActive();
-    return deco->window()->palette().color(active ? QPalette::Active : QPalette::Disabled, QPalette::ButtonText);
+    const QPalette palette = deco->window()->palette();
+    const qreal o = deco->activeOpacity();
+    const QColor active = palette.color(QPalette::Active, QPalette::ButtonText);
+    const QColor inactive = palette.color(QPalette::Disabled, QPalette::ButtonText);
+    return o >= 1.0 ? active : (o <= 0.0 ? inactive : KColorUtils::mix(inactive, active, o));
 }
 
 

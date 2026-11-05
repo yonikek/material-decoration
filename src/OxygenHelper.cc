@@ -566,4 +566,29 @@ QImage OxygenHelper::shadowImage(bool active, bool hasBorder) const
     return shadow.toImage();
 }
 
+QImage OxygenHelper::animatedShadowImage(bool hasBorder, qreal opacity) const
+{
+    const QImage inactive = shadowImage(false, hasBorder);
+    const QImage active = shadowImage(true, hasBorder);
+    if (inactive.isNull() || active.isNull() || inactive.size() != active.size()) {
+        return QImage();
+    }
+
+    const auto faded = [](QImage image, qreal alpha) {
+        QPainter painter(&image);
+        painter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+        painter.fillRect(image.rect(), QColor(0, 0, 0, qRound(255 * qBound(0.0, alpha, 1.0))));
+        painter.end();
+        return image;
+    };
+
+    QImage out(active.size(), QImage::Format_ARGB32_Premultiplied);
+    out.fill(Qt::transparent);
+    QPainter painter(&out);
+    painter.drawImage(0, 0, faded(inactive.convertToFormat(QImage::Format_ARGB32_Premultiplied), 1.0 - opacity));
+    painter.drawImage(0, 0, faded(active.convertToFormat(QImage::Format_ARGB32_Premultiplied), opacity));
+    painter.end();
+    return out;
+}
+
 } // namespace OxygenLim
