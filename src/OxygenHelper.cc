@@ -14,6 +14,8 @@
 #include <KSharedConfig>
 #include <KStatefulBrush>
 
+#include <QCoreApplication>
+#include <QEvent>
 #include <QGuiApplication>
 #include <QLinearGradient>
 #include <QPainter>
@@ -24,6 +26,23 @@
 namespace OxygenLim
 {
 
+PaletteChangeWatcher::PaletteChangeWatcher(std::function<void()> callback, QObject *parent)
+    : QObject(parent)
+    , m_callback(std::move(callback))
+{
+    if (auto *app = QCoreApplication::instance()) {
+        app->installEventFilter(this);
+    }
+}
+
+bool PaletteChangeWatcher::eventFilter(QObject *watched, QEvent *event)
+{
+    if (event->type() == QEvent::ApplicationPaletteChange && watched == QCoreApplication::instance() && m_callback) {
+        m_callback();
+    }
+    return false;
+}
+
 OxygenHelper *OxygenHelper::self()
 {
     static OxygenHelper s_helper;
@@ -33,6 +52,14 @@ OxygenHelper *OxygenHelper::self()
 OxygenHelper::OxygenHelper()
 {
     // Same contrast as the Oxygen style (read through oxygenrc like Oxygen's DecoHelper).
+    const KSharedConfig::Ptr config = KSharedConfig::openConfig(QStringLiteral("oxygenrc"));
+    m_contrast = KColorScheme::contrastF(config);
+    m_bgContrast = qMin(1.0, 0.9 * m_contrast / 0.7);
+}
+
+void OxygenHelper::reconfigure()
+{
+    KSharedConfig::openConfig(QStringLiteral("oxygenrc"))->reparseConfiguration();
     const KSharedConfig::Ptr config = KSharedConfig::openConfig(QStringLiteral("oxygenrc"));
     m_contrast = KColorScheme::contrastF(config);
     m_bgContrast = qMin(1.0, 0.9 * m_contrast / 0.7);

@@ -373,6 +373,13 @@ bool Decoration::init()
     connect(decoratedClient, &KDecoration3::DecoratedWindow::activeChanged,
         this, &Decoration::onActiveChanged);
 
+    // The active shadow glow follows the accent colour of the application
+    // palette. Rebuild the shadows once a palette change has been applied
+    // (deferred, so the new palette is certainly in place).
+    new PaletteChangeWatcher([this] {
+        QTimer::singleShot(0, this, [this] { invalidateShadows(); });
+    }, this);
+
     // fade between the active and inactive look
     m_activeOpacity = decoratedClient->isActive() ? 1.0 : 0.0;
     m_activeAnimation = new QVariantAnimation(this);
@@ -512,6 +519,16 @@ void Decoration::applySettings()
 
 void Decoration::reconfigure()
 {
+    // Oxygen colour/shadow settings may have changed: reload them and drop the
+    // shadows generated from the old ones, so updateShadow() rebuilds them.
+    OxygenHelper::self()->reconfigure();
+    for (auto &row : s_cachedShadows) {
+        for (auto &shadow : row) {
+            shadow.reset();
+        }
+    }
+    s_animatedShadows.clear();
+
     resetDragMove();
     setInternalSettings(SettingsProvider::self()->internalSettings(this));
     applySettings();
@@ -814,6 +831,17 @@ void Decoration::updateButtonAnimation()
         m_menuButtons->setAnimationEnabled(enabled);
         m_menuButtons->setAnimationDuration(duration);
     }
+}
+
+void Decoration::invalidateShadows()
+{
+    for (auto &row : s_cachedShadows) {
+        for (auto &shadow : row) {
+            shadow.reset();
+        }
+    }
+    s_animatedShadows.clear();
+    updateShadow();
 }
 
 void Decoration::updateShadow()

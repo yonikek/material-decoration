@@ -15,6 +15,8 @@
 #pragma once
 
 #include <QColor>
+#include <QObject>
+#include <functional>
 #include <QHash>
 #include <QImage>
 #include <QPalette>
@@ -27,10 +29,29 @@ class QRadialGradient;
 namespace OxygenLim
 {
 
+// Calls back whenever the application palette (colour scheme, accent colour)
+// has changed. The active shadow colour is derived from the application
+// palette, so shadows must be rebuilt after the new palette is in place.
+class PaletteChangeWatcher : public QObject
+{
+public:
+    explicit PaletteChangeWatcher(std::function<void()> callback, QObject *parent = nullptr);
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
+private:
+    std::function<void()> m_callback;
+};
+
 class OxygenHelper
 {
 public:
     static OxygenHelper *self();
+
+    // Re-reads oxygenrc (contrast, shadow settings). Cached shadows must be
+    // dropped by the caller.
+    void reconfigure();
 
     // Colour palette derived from a base colour.
     QColor calcLightColor(const QColor &color) const;
