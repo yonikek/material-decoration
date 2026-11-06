@@ -17,6 +17,7 @@
 #include <QCoreApplication>
 #include <QEvent>
 #include <QGuiApplication>
+#include <QTimer>
 #include <QLinearGradient>
 #include <QPainter>
 #include <QRadialGradient>
@@ -26,43 +27,88 @@
 namespace OxygenLim
 {
 
-PaletteChangeWatcher::PaletteChangeWatcher(std::function<void()> callback, QObject *parent)
-    : QObject(parent)
-    , m_callback(std::move(callback))
+namespace
 {
+KSharedConfig::Ptr oxygenConfig()
+{
+    return KSharedConfig::openConfig(QStringLiteral("oxygenrc"));
+}
+
+template<typename Compute>
+QColor cachedColor(QHash<QRgb, QColor> &cache, const QColor &color, Compute compute)
+{
+    const QRgb key = color.rgba();
+    const auto it = cache.constFind(key);
+    if (it != cache.constEnd()) {
+        return it.value();
+    }
+    const QColor result = compute();
+    if (cache.size() > 2048) {
+        cache.clear();
+    }
+    cache.insert(key, result);
+    return result;
+}
+} // namespace
+
+OxygenHelper *OxygenHelper::self()
+{
+    // never destroyed on purpose: avoids static destruction order problems
+    // with the application object it installs an event filter on
+    static OxygenHelper *s_helper = new OxygenHelper;
+    return s_helper;
+}
+
+OxygenHelper::OxygenHelper()
+    : QObject(nullptr)
+    , m_buttonCache(256)
+{
+    // Same contrast as the Oxygen style (read through oxygenrc like Oxygen's DecoHelper).
+    m_contrast = KColorScheme::contrastF(oxygenConfig());
+    m_bgContrast = qMin(1.0, 0.9 * m_contrast / 0.7);
+
     if (auto *app = QCoreApplication::instance()) {
         app->installEventFilter(this);
     }
 }
 
-bool PaletteChangeWatcher::eventFilter(QObject *watched, QEvent *event)
-{
-    if (event->type() == QEvent::ApplicationPaletteChange && watched == QCoreApplication::instance() && m_callback) {
-        m_callback();
-    }
-    return false;
-}
-
-OxygenHelper *OxygenHelper::self()
-{
-    static OxygenHelper s_helper;
-    return &s_helper;
-}
-
-OxygenHelper::OxygenHelper()
-{
-    // Same contrast as the Oxygen style (read through oxygenrc like Oxygen's DecoHelper).
-    const KSharedConfig::Ptr config = KSharedConfig::openConfig(QStringLiteral("oxygenrc"));
-    m_contrast = KColorScheme::contrastF(config);
-    m_bgContrast = qMin(1.0, 0.9 * m_contrast / 0.7);
-}
+OxygenHelper::~OxygenHelper() = default;
 
 void OxygenHelper::reconfigure()
 {
-    KSharedConfig::openConfig(QStringLiteral("oxygenrc"))->reparseConfiguration();
-    const KSharedConfig::Ptr config = KSharedConfig::openConfig(QStringLiteral("oxygenrc"));
-    m_contrast = KColorScheme::contrastF(config);
+    oxygenConfig()->reparseConfiguration();
+    m_contrast = KColorScheme::contrastF(oxygenConfig());
     m_bgContrast = qMin(1.0, 0.9 * m_contrast / 0.7);
+    invalidate();
+}
+
+void OxygenHelper::invalidate()
+{
+    m_lightCache.clear();
+    m_darkCache.clear();
+    m_shadowColorCache.clear();
+    m_bgTopCache.clear();
+    m_bgBottomCache.clear();
+    m_bgRadialCache.clear();
+    m_buttonCache.clear();
+    m_focusBrush.reset();
+    m_hoverBrush.reset();
+    m_negativeBrush.reset();
+}
+
+bool OxygenHelper::eventFilter(QObject *watched, QEvent *event)
+{
+    // The active shadow colour comes from the application palette, so shadows
+    // have to be rebuilt once the new palette is certainly in place: defer.
+    if (event->type() == QEvent::ApplicationPaletteChange && watched == QCoreApplication::instance() && !m_paletteUpdatePending) {
+        m_paletteUpdatePending = true;
+        QTimer::singleShot(0, this, [this] {
+            m_paletteUpdatePending = false;
+            invalidate();
+            Q_EMIT applicationPaletteChanged();
+        });
+    }
+    return QObject::eventFilter(watched, event);
 }
 
 QColor OxygenHelper::alphaColor(QColor color, qreal alpha)
@@ -87,22 +133,52 @@ bool OxygenHelper::highThreshold(const QColor &color) const
 
 QColor OxygenHelper::calcLightColor(const QColor &color) const
 {
-    return highThreshold(color) ? color : KColorScheme::shade(color, KColorScheme::LightShade, m_contrast);
+    return cachedColor(m_lightCache, color, [&] { return computeLightColor(color); });
 }
 
 QColor OxygenHelper::calcDarkColor(const QColor &color) const
+{
+    return cachedColor(m_darkCache, color, [&] { return computeDarkColor(color); });
+}
+
+QColor OxygenHelper::calcShadowColor(const QColor &color) const
+{
+    return cachedColor(m_shadowColorCache, color, [&] { return computeShadowColor(color); });
+}
+
+QColor OxygenHelper::backgroundTopColor(const QColor &color) const
+{
+    return cachedColor(m_bgTopCache, color, [&] { return computeBackgroundTopColor(color); });
+}
+
+QColor OxygenHelper::backgroundBottomColor(const QColor &color) const
+{
+    return cachedColor(m_bgBottomCache, color, [&] { return computeBackgroundBottomColor(color); });
+}
+
+QColor OxygenHelper::backgroundRadialColor(const QColor &color) const
+{
+    return cachedColor(m_bgRadialCache, color, [&] { return computeBackgroundRadialColor(color); });
+}
+
+QColor OxygenHelper::computeLightColor(const QColor &color) const
+{
+    return highThreshold(color) ? color : KColorScheme::shade(color, KColorScheme::LightShade, m_contrast);
+}
+
+QColor OxygenHelper::computeDarkColor(const QColor &color) const
 {
     return lowThreshold(color) ? KColorUtils::mix(calcLightColor(color), color, 0.3 + 0.7 * m_contrast)
                                : KColorScheme::shade(color, KColorScheme::MidShade, m_contrast);
 }
 
-QColor OxygenHelper::calcShadowColor(const QColor &color) const
+QColor OxygenHelper::computeShadowColor(const QColor &color) const
 {
     return lowThreshold(color) ? KColorUtils::mix(Qt::black, color, color.alphaF())
                                : KColorScheme::shade(KColorUtils::mix(Qt::black, color, color.alphaF()), KColorScheme::ShadowShade, m_contrast);
 }
 
-QColor OxygenHelper::backgroundTopColor(const QColor &color) const
+QColor OxygenHelper::computeBackgroundTopColor(const QColor &color) const
 {
     if (lowThreshold(color)) {
         return KColorScheme::shade(color, KColorScheme::MidlightShade, 0.0);
@@ -112,7 +188,7 @@ QColor OxygenHelper::backgroundTopColor(const QColor &color) const
     return KColorUtils::shade(color, (my - by) * m_bgContrast);
 }
 
-QColor OxygenHelper::backgroundBottomColor(const QColor &color) const
+QColor OxygenHelper::computeBackgroundBottomColor(const QColor &color) const
 {
     const QColor midColor(KColorScheme::shade(color, KColorScheme::MidShade, 0.0));
     if (lowThreshold(color)) {
@@ -123,7 +199,7 @@ QColor OxygenHelper::backgroundBottomColor(const QColor &color) const
     return KColorUtils::shade(color, (my - by) * m_bgContrast);
 }
 
-QColor OxygenHelper::backgroundRadialColor(const QColor &color) const
+QColor OxygenHelper::computeBackgroundRadialColor(const QColor &color) const
 {
     if (lowThreshold(color)) {
         return KColorScheme::shade(color, KColorScheme::LightShade, 0.0);
@@ -136,17 +212,26 @@ QColor OxygenHelper::backgroundRadialColor(const QColor &color) const
 
 QColor OxygenHelper::focusColor(const QPalette &palette) const
 {
-    return KStatefulBrush(KColorScheme::View, KColorScheme::FocusColor, KSharedConfig::openConfig(QStringLiteral("oxygenrc"))).brush(palette).color();
+    if (!m_focusBrush) {
+        m_focusBrush = std::make_unique<KStatefulBrush>(KColorScheme::View, KColorScheme::FocusColor, oxygenConfig());
+    }
+    return m_focusBrush->brush(palette).color();
 }
 
 QColor OxygenHelper::hoverColor(const QPalette &palette) const
 {
-    return KStatefulBrush(KColorScheme::View, KColorScheme::HoverColor, KSharedConfig::openConfig(QStringLiteral("oxygenrc"))).brush(palette).color();
+    if (!m_hoverBrush) {
+        m_hoverBrush = std::make_unique<KStatefulBrush>(KColorScheme::View, KColorScheme::HoverColor, oxygenConfig());
+    }
+    return m_hoverBrush->brush(palette).color();
 }
 
 QColor OxygenHelper::negativeTextColor(const QPalette &palette) const
 {
-    return KStatefulBrush(KColorScheme::View, KColorScheme::NegativeText, KSharedConfig::openConfig(QStringLiteral("oxygenrc"))).brush(palette).color();
+    if (!m_negativeBrush) {
+        m_negativeBrush = std::make_unique<KStatefulBrush>(KColorScheme::View, KColorScheme::NegativeText, oxygenConfig());
+    }
+    return m_negativeBrush->brush(palette).color();
 }
 
 void OxygenHelper::renderWindowBackground(QPainter *painter, const QRect &clipRect, const QRect &windowRect, const QColor &color, int yShift) const
@@ -258,9 +343,26 @@ void OxygenHelper::drawOuterGlow(QPainter &painter, const QColor &color, int siz
     painter.restore();
 }
 
-QPixmap OxygenHelper::windecoButton(const QColor &color, const QColor &glow, bool sunken, int size, int physicalSize) const
+QPixmap OxygenHelper::windecoButton(const QColor &color, const QColor &glow, bool sunken, int size, qreal devicePixelRatio) const
 {
-    Q_UNUSED(size)
+    const int physicalSize = qRound(size * devicePixelRatio);
+
+    // cache key: both colours (32 bits each), mixed with the remaining parameters
+    const quint64 extra = (quint64(physicalSize) << 20) | (quint64(qRound(devicePixelRatio * 100)) << 4) | (sunken ? 2 : 0) | (glow.isValid() ? 1 : 0) | (color.isValid() ? 4 : 0);
+    const quint64 key = ((quint64(color.rgba()) << 32) | quint64(glow.isValid() ? glow.rgba() : 0)) ^ (extra * Q_UINT64_C(0x9E3779B97F4A7C15));
+
+    if (const QPixmap *cached = m_buttonCache.object(key)) {
+        return *cached;
+    }
+
+    QPixmap pixmap = renderWindecoButton(color, glow, sunken, physicalSize);
+    pixmap.setDevicePixelRatio(devicePixelRatio);
+    m_buttonCache.insert(key, new QPixmap(pixmap));
+    return pixmap;
+}
+
+QPixmap OxygenHelper::renderWindecoButton(const QColor &color, const QColor &glow, bool sunken, int physicalSize) const
+{
     QPixmap pixmap(physicalSize, physicalSize);
     pixmap.fill(Qt::transparent);
 

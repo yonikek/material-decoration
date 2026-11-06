@@ -374,11 +374,12 @@ bool Decoration::init()
         this, &Decoration::onActiveChanged);
 
     // The active shadow glow follows the accent colour of the application
-    // palette. Rebuild the shadows once a palette change has been applied
-    // (deferred, so the new palette is certainly in place).
-    new PaletteChangeWatcher([this] {
-        QTimer::singleShot(0, this, [this] { invalidateShadows(); });
-    }, this);
+    // palette: rebuild the shadows (and repaint) after a palette change. The
+    // shared helper has already dropped its caches and deferred the signal.
+    connect(OxygenHelper::self(), &OxygenHelper::applicationPaletteChanged, this, [this] {
+        invalidateShadows();
+        update();
+    });
 
     // fade between the active and inactive look
     m_activeOpacity = decoratedClient->isActive() ? 1.0 : 0.0;
