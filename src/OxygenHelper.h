@@ -15,22 +15,42 @@
 #pragma once
 
 #include <QColor>
+#include <QCache>
 #include <QHash>
+#include <QObject>
 #include <QImage>
 #include <QPalette>
 #include <QPixmap>
 #include <QRect>
+#include <QRgb>
 
+#include <memory>
+
+class KStatefulBrush;
 class QPainter;
 class QRadialGradient;
 
 namespace OxygenLim
 {
 
-class OxygenHelper
+// Shared helper: derived colours, window background and button rendering, with
+// caches. It also watches the application palette (colour scheme, accent
+// colour) once for all decorations and notifies them through a signal, after
+// its own caches have been dropped.
+class OxygenHelper : public QObject
 {
+    Q_OBJECT
+
 public:
     static OxygenHelper *self();
+    ~OxygenHelper() override;
+
+    // Drops every cached colour, brush and button pixmap.
+    void invalidate();
+
+    // Re-reads oxygenrc (contrast, shadow settings). Cached shadows must be
+    // dropped by the caller.
+    void reconfigure();
 
     // Colour palette derived from a base colour.
     QColor calcLightColor(const QColor &color) const;
@@ -59,12 +79,28 @@ public:
     // A null image means one of the two shadows is disabled.
     QImage animatedShadowImage(bool hasBorder, qreal opacity) const;
 
-    // Glossy round window button slab. size is the logical size, physicalSize
-    // the size in device pixels.
-    QPixmap windecoButton(const QColor &color, const QColor &glow, bool sunken, int size, int physicalSize) const;
+    // Glossy round window button slab (cached). size is the logical size; the
+    // returned pixmap has size * devicePixelRatio physical pixels and its
+    // device pixel ratio already set.
+    QPixmap windecoButton(const QColor &color, const QColor &glow, bool sunken, int size, qreal devicePixelRatio) const;
+
+Q_SIGNALS:
+    // Emitted (deferred) after the application palette has changed.
+    void applicationPaletteChanged();
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
     OxygenHelper();
+
+    QColor computeLightColor(const QColor &color) const;
+    QColor computeDarkColor(const QColor &color) const;
+    QColor computeShadowColor(const QColor &color) const;
+    QColor computeBackgroundTopColor(const QColor &color) const;
+    QColor computeBackgroundBottomColor(const QColor &color) const;
+    QColor computeBackgroundRadialColor(const QColor &color) const;
+    QPixmap renderWindecoButton(const QColor &color, const QColor &glow, bool sunken, int physicalSize) const;
 
     bool lowThreshold(const QColor &color) const;
     bool highThreshold(const QColor &color) const;
@@ -74,6 +110,19 @@ private:
 
     qreal m_contrast = 0.7;
     qreal m_bgContrast = 0.9;
+    bool m_paletteUpdatePending = false;
+
+    mutable QHash<QRgb, QColor> m_lightCache;
+    mutable QHash<QRgb, QColor> m_darkCache;
+    mutable QHash<QRgb, QColor> m_shadowColorCache;
+    mutable QHash<QRgb, QColor> m_bgTopCache;
+    mutable QHash<QRgb, QColor> m_bgBottomCache;
+    mutable QHash<QRgb, QColor> m_bgRadialCache;
+    mutable QCache<quint64, QPixmap> m_buttonCache;
+    mutable std::unique_ptr<KStatefulBrush> m_focusBrush;
+    mutable std::unique_ptr<KStatefulBrush> m_hoverBrush;
+    mutable std::unique_ptr<KStatefulBrush> m_negativeBrush;
+
     static constexpr qreal s_shadowGain = 1.5;
     static constexpr int s_shadowOverlap = 4;
 };

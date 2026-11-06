@@ -520,7 +520,8 @@ void Button::paintOxygenButton(QPainter *painter, Decoration *deco)
     const bool hovered = isVisuallyHovered();
     const bool checkedToggle = isToggleButton() && isChecked();
     const bool animated = m_animation->state() == QAbstractAnimation::Running;
-    const qreal glowIntensity = m_transitionValue;
+    // quantized, so the animation reuses cached button pixmaps
+    const qreal glowIntensity = qRound(m_transitionValue * 32.0) / 32.0;
     if (animated || hovered || checkedToggle) {
         const QColor toggleColor = helper->focusColor(palette);
         const QColor toggledHoverGlow = palette.color(QPalette::Disabled, QPalette::ButtonText);
@@ -554,9 +555,7 @@ void Button::paintOxygenButton(QPainter *painter, Decoration *deco)
     // draw button shape
     const bool sunken = isPressed() || checkedToggle;
     const qreal dpr = painter->device()->devicePixelRatioF();
-    const int physicalSize = qRound(size * dpr);
-    QPixmap buttonPixmap = helper->windecoButton(base, glow, sunken, size, physicalSize);
-    buttonPixmap.setDevicePixelRatio(dpr);
+    const QPixmap buttonPixmap = helper->windecoButton(base, glow, sunken, size, dpr);
     painter->drawPixmap(origin, buttonPixmap);
 
     // Icon
